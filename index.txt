@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#05070f">
+<title>Comparative Quest v3 — เกมฝึก -er / more (ป.5)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+body{font-family:'Segoe UI','Sarabun',Tahoma,sans-serif;background:#05070f;color:#eaf2ff;min-height:100vh;overflow-x:hidden;
+ padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%}
+body.playing{overflow:hidden;position:fixed;width:100%}
+#stars{position:fixed;inset:0;background:
+ radial-gradient(2px 2px at 20% 30%,#fff,transparent),radial-gradient(2px 2px at 70% 60%,#9fd,transparent),
+ radial-gradient(1px 1px at 40% 80%,#fff,transparent),radial-gradient(1px 1px at 85% 20%,#ffd,transparent);opacity:.35;pointer-events:none;z-index:0}
+.screen{display:none;position:relative;z-index:2;max-width:1040px;margin:0 auto;padding:14px}
+.screen.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card{background:linear-gradient(160deg,#111c34,#0a1122);border:2px solid #2b4a7d;border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+h1{font-size:clamp(21px,5.4vw,30px);text-align:center;background:linear-gradient(90deg,#ffd93d,#ff8c42,#6bcB77,#4d96ff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+h2{font-size:20px;margin-bottom:10px;color:#ffd93d;text-align:center}
+h3{font-size:16.5px;margin:12px 0 6px;color:#8fd3ff}
+p.sub{text-align:center;color:#9fb3d4;margin-bottom:14px;font-size:14px;line-height:1.6}
+label{display:block;margin:10px 0 4px;font-size:14px;color:#a9c4e8}
+input,select,textarea{width:100%;padding:12px 13px;border-radius:10px;border:2px solid #2b4a7d;background:#0b1424;color:#fff;font-size:16px;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:#ffd93d}
+.btn{display:inline-block;padding:12px 20px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+ background:linear-gradient(135deg,#ffd93d,#ff9f1c);color:#20140a;transition:.15s;margin:4px 3px;min-height:44px}
+.btn:active{transform:scale(.96)}
+.btn.blue{background:linear-gradient(135deg,#4d96ff,#2b6fd6);color:#fff}
+.btn.green{background:linear-gradient(135deg,#6bcB77,#2f9e57);color:#06210f}
+.btn.red{background:linear-gradient(135deg,#ff6b6b,#d63d3d);color:#fff}
+.btn.purple{background:linear-gradient(135deg,#b197fc,#7048e8);color:#fff}
+.btn.ghost{background:transparent;border:2px solid #4d96ff;color:#8fd3ff}
+.btn.small{padding:8px 13px;font-size:13px;min-height:38px}
+.btn:disabled{opacity:.4}
+.center{text-align:center}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:460px){.modes{grid-template-columns:1fr}}
+.mode{padding:14px;border-radius:14px;border:2px solid #2b4a7d;background:#0e1a30;cursor:pointer;text-align:center;transition:.15s}
+.mode.on{border-color:#ffd93d;background:#1d2438;box-shadow:0 0 16px rgba(255,217,61,.25)}
+.mode .em{font-size:30px;display:block}
+.mode b{font-size:15px}.mode span{font-size:11.5px;color:#9fb3d4;display:block;margin-top:3px;line-height:1.5}
+#hud{display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;background:#0b1424;border:2px solid #2b4a7d;
+ border-radius:12px;padding:7px 10px;margin-bottom:6px;font-size:13px;font-weight:700}
+#hud>div{white-space:nowrap}
+#hud .btn{padding:6px 9px;font-size:12px;min-height:34px;margin:0 1px}
+#saveDot{opacity:.25;transition:.3s}
+#saveDot.on{opacity:1;text-shadow:0 0 10px #6bcB77}
+#gameWrap{position:relative;display:flex;justify-content:center}
+canvas{border-radius:12px;border:3px solid #2b4a7d;background:#000;touch-action:none;display:block}
+#levelBanner{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;
+ background:rgba(0,0,0,.82);border-radius:12px;font-size:clamp(18px,4.6vw,26px);font-weight:800;text-align:center;padding:16px;z-index:5}
+#pad{display:none;margin:8px auto 0;width:100%;max-width:232px;user-select:none}
+#pad .r{display:flex;justify-content:center;gap:8px;margin:6px 0}
+#pad button{width:66px;height:60px;font-size:26px;border-radius:16px;border:2px solid #4d96ff;background:linear-gradient(160deg,#1a3157,#0e1c33);color:#8fd3ff;font-weight:800;touch-action:none}
+#pad button:active{background:#4d96ff;color:#04101f}
+body.touch #pad{display:block}
+@media(orientation:landscape) and (max-height:520px){
+ #pad{position:fixed;left:8px;bottom:10px;width:176px;z-index:20;opacity:.93}
+ #pad button{width:52px;height:46px;font-size:21px}}
+.modal{display:none;position:fixed;inset:0;background:rgba(3,6,14,.94);z-index:60;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px}
+.modal.on{display:block;animation:fade .25s}
+.mbox{max-width:720px;margin:14px auto;background:linear-gradient(160deg,#132444,#0a1122);border:3px solid #ffd93d;border-radius:18px;padding:18px}
+.mbox.boss{border-color:#ff6b6b;background:linear-gradient(160deg,#2a1024,#12060f)}
+.flashno{animation:fno .45s}
+@keyframes fno{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 9999px rgba(255,60,60,.22) inset}}
+#timerBar{height:12px;background:#22304d;border-radius:8px;overflow:hidden;margin:10px 0 4px}
+#timerFill{height:100%;width:100%;background:linear-gradient(90deg,#6bcB77,#ffd93d);transition:width .3s linear}
+.qtag{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;background:#4d96ff;color:#fff;margin-right:6px}
+.qtag.lis{background:#a06bff}.qtag.spk{background:#ff6b9d}.qtag.rea{background:#4d96ff}.qtag.wri{background:#2f9e57}
+.qtext{font-size:clamp(18px,4.6vw,22px);font-weight:700;line-height:1.7;margin:12px 0;text-align:center}
+.qth{font-size:14px;color:#9fb3d4;text-align:center;margin-bottom:10px;line-height:1.6}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(max-width:560px){.choices{grid-template-columns:1fr}}
+.choice{padding:15px;border-radius:13px;border:2px solid #2b4a7d;background:#0e1a30;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;color:#eaf2ff;min-height:52px}
+.choice:active{transform:scale(.98)}
+.choice.ok{background:#1d6b3a;border-color:#6bcB77}
+.choice.no{background:#77202a;border-color:#ff6b6b}
+.fb{margin-top:12px;padding:13px;border-radius:12px;font-size:15px;line-height:1.7;display:none}
+.fb.ok{display:block;background:#12351f;border:2px solid #6bcB77}
+.fb.no{display:block;background:#3a1620;border:2px solid #ff6b6b}
+.wordbank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.wchip{padding:11px 15px;border-radius:10px;background:#1b2a49;border:2px solid #4d96ff;cursor:pointer;font-size:16px;font-weight:700;min-height:44px;display:flex;align-items:center}
+.wchip.used{opacity:.28;pointer-events:none}
+#orderLine{min-height:58px;border:2px dashed #4d96ff;border-radius:12px;padding:9px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;align-items:center;font-size:17px}
+/* BOSS */
+#bossBox{display:none;text-align:center;margin-bottom:10px;padding:12px;border-radius:14px;background:linear-gradient(160deg,#3a1020,#180810);border:2px solid #ff6b6b}
+#bossEmo{font-size:56px;line-height:1;display:inline-block;filter:drop-shadow(0 0 12px #ff6b6b)}
+#bossEmo.hit{animation:bhit .55s}
+@keyframes bhit{0%{transform:scale(1)}18%{transform:scale(1.3) rotate(-10deg);filter:brightness(4)}55%{transform:scale(.86) rotate(8deg)}100%{transform:scale(1)}}
+#bossEmo.atk{animation:batk .5s}
+@keyframes batk{0%,100%{transform:translateY(0)}30%{transform:translateY(14px) scale(1.15)}60%{transform:translateY(-6px)}}
+.hpwrap{height:18px;background:#2a0d16;border:2px solid #ff6b6b;border-radius:10px;overflow:hidden;margin:8px auto 4px;max-width:420px}
+.hpwrap i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff6b6b,#ffd93d);transition:width .55s cubic-bezier(.2,.9,.3,1)}
+#bossCombo{font-size:19px;font-weight:800;color:#ffd93d;min-height:26px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th,td{border:1px solid #2b4a7d;padding:6px 7px;text-align:center}
+th{background:#1b2a49;color:#ffd93d;position:sticky;top:0;z-index:1}
+tr:nth-child(even) td{background:#0d1728}
+.scroll{max-height:60vh;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+.badge{display:inline-block;padding:3px 9px;border-radius:14px;font-size:11.5px;font-weight:700}
+.b-g{background:#2f9e57}.b-y{background:#c99a00;color:#1a1400}.b-r{background:#c0392b}
+.lvl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:12px}
+.lvl{padding:15px;border-radius:14px;text-align:center;border:2px solid #2b4a7d;cursor:pointer;font-weight:700;position:relative}
+.lvl:active{transform:scale(.97)}
+.lvl .em{font-size:32px;display:block}
+.lvl.lock{opacity:.4}
+.lvl .sv{position:absolute;top:6px;right:8px;font-size:15px}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:9px;margin:12px 0}
+.st{background:#0e1a30;border:2px solid #2b4a7d;border-radius:12px;padding:11px;text-align:center}
+.st b{display:block;font-size:23px;color:#ffd93d}
+.st span{font-size:11.5px;color:#9fb3d4}
+.bar{height:9px;background:#22304d;border-radius:6px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#4d96ff,#6bcB77)}
+.note{font-size:12.5px;color:#8ea6c8;line-height:1.8}
+.mic{width:100px;height:100px;border-radius:50%;font-size:42px;border:3px solid #ff6b9d;background:#2a1224;color:#fff;cursor:pointer;margin:8px}
+.mic.rec{animation:pulse .9s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,157,.6)}50%{box-shadow:0 0 0 18px rgba(255,107,157,0)}}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:8px;margin:16px 0}
+.pod{border-radius:12px 12px 0 0;padding:10px 6px;text-align:center;font-weight:800;min-width:31%}
+.pod .nm{font-size:13px;line-height:1.4;word-break:break-word}
+.pod .sc{font-size:19px;color:#fff}
+.pod.p1{background:linear-gradient(180deg,#ffd93d,#c99a00);height:132px;color:#20140a}
+.pod.p2{background:linear-gradient(180deg,#dfe6f0,#9aa7b8);height:105px;color:#12202f}
+.pod.p3{background:linear-gradient(180deg,#e8a87c,#b06b3a);height:88px;color:#241005}
+.pod .md{font-size:26px}
+.lbrow{display:flex;align-items:center;gap:10px;background:#0e1a30;border:2px solid #2b4a7d;border-radius:12px;padding:10px 12px;margin:7px 0;transition:.4s}
+.lbrow.me{border-color:#ffd93d;background:#1d2438;box-shadow:0 0 14px rgba(255,217,61,.25)}
+.lbrow .rk{font-size:17px;font-weight:800;width:40px;text-align:center;color:#ffd93d}
+.lbrow .in{flex:1;min-width:0}
+.lbrow .nm{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .mt{font-size:11.5px;color:#8ea6c8}
+.lbrow .sc{font-size:19px;font-weight:800;color:#6bcB77;white-space:nowrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.chip{padding:8px 15px;border-radius:20px;background:#0e1a30;border:2px solid #2b4a7d;cursor:pointer;font-size:13.5px;font-weight:700;min-height:40px}
+.chip.on{background:#ffd93d;color:#20140a;border-color:#ffd93d}
+/* LIVE BOARD */
+#scLive .lbrow{padding:14px 16px}
+body.proj #scLive .lbrow .nm{font-size:clamp(18px,3vw,30px)}
+body.proj #scLive .lbrow .sc{font-size:clamp(22px,3.6vw,40px)}
+body.proj #scLive .lbrow .rk{font-size:clamp(20px,3vw,34px);width:64px}
+body.proj #scLive .lbrow .mt{font-size:clamp(12px,1.5vw,17px)}
+body.proj #scLive h1{font-size:clamp(26px,4.4vw,46px)}
+.livedot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#6bcB77;margin-right:5px;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.livedot.off{background:#ff6b6b}
+#printArea{display:none;color:#000;background:#fff;padding:18px;font-size:13px}
+#printArea table{color:#000}#printArea th{background:#eee!important;color:#000!important}
+#printArea td{background:#fff!important;border:1px solid #999}
+@media print{body{background:#fff!important;color:#000!important}#stars,.screen,.modal,#pad{display:none!important}#printArea{display:block!important}}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);background:#132444;border:2px solid #6bcB77;
+ padding:11px 20px;border-radius:12px;font-weight:700;font-size:14px;z-index:90;transition:.3s;opacity:0;pointer-events:none;max-width:92vw;text-align:center}
+#toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+/* ===== มือถือ / แท็บเล็ต ===== */
+html,body{touch-action:manipulation}
+body{min-height:100vh;min-height:100dvh}
+button,.btn,.choice,.wchip,.chip,.mode,.lvl,.mic,#hud,#pad,#gameWrap,#levelBanner{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input{-webkit-user-select:text;user-select:text}
+canvas,#pad button{touch-action:none}
+.modal{overscroll-behavior:contain}
+body.touch .btn{min-height:46px}
+body.touch #hud .btn{min-height:40px;padding:7px 11px}
+@media(max-width:420px){.card{padding:14px}.mbox{padding:14px;margin:8px auto}.btn{padding:11px 14px}.qtext{font-size:19px}}
+@media(max-height:620px){#bossEmo{font-size:38px}#bossBox{padding:7px;margin-bottom:6px}.hpwrap{height:13px;margin:5px auto 3px}#bossCombo{font-size:15px;min-height:20px}.mbox{margin:6px auto}}
+@media(min-width:760px) and (hover:none) and (min-height:600px){#pad{max-width:300px}#pad button{width:84px;height:72px;font-size:30px}}
+.nofs{display:none!important}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="toast"></div>
+
+<!-- ================= LOGIN ================= -->
+<div class="screen on" id="scLogin">
+  <div class="card" style="max-width:480px;margin:3vh auto">
+    <h1>🟡 COMPARATIVE QUEST</h1>
+    <p class="sub">เกมผจญภัยฝึกการเปรียบเทียบขั้นกว่า <b>-er / more</b><br>ภาษาอังกฤษ ชั้นประถมศึกษาปีที่ 5 · เวอร์ชัน 3.2</p>
+
+    <h3 style="text-align:center">เลือกโหมดการเล่น</h3>
+    <div class="modes">
+      <div class="mode on" id="mdSolo" onclick="selectMode('solo')">
+        <span class="em">🏠</span><b>ฝึกฝนส่วนตัว</b>
+        <span>เล่นที่บ้าน · บันทึกความคืบหน้าในเครื่อง</span></div>
+      <div class="mode" id="mdLive" onclick="selectMode('live')">
+        <span class="em">🔥</span><b>แข่งสดทั้งห้อง</b>
+        <span>เล่นที่โรงเรียน · คะแนนขึ้นจอโปรเจกเตอร์</span></div>
+    </div>
+
+    <div id="roomBox" style="display:none">
+      <label>🔑 รหัสห้องแข่ง (ครูเป็นผู้กำหนด)</label>
+      <input id="inRoom" placeholder="เช่น P5-1" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+      <p class="note center" id="netHint"></p>
+    </div>
+
+    <label>👤 ชื่อ–นามสกุล</label>
+    <input id="inName" placeholder="เช่น สมชาย ใจดี" autocomplete="off">
+    <label>🏫 ชั้น/ห้อง (พิมพ์เอง)</label>
+    <input id="inClass" placeholder="เช่น ป.5/1" autocomplete="off">
+    <label>🔢 เลขที่</label>
+    <input id="inNo" type="number" min="1" max="99" placeholder="เช่น 12">
+
+    <div class="center" style="margin-top:16px">
+      <button class="btn" onclick="doLogin()">🎮 เริ่มเล่นเกม</button>
+    </div>
+    <div class="center" style="margin-top:6px">
+      <button class="btn purple small" onclick="openLB()">🏆 กระดานผู้นำ</button>
+      <button class="btn ghost small" onclick="openTeacher()">🔐 สำหรับคุณครู</button>
+      <button class="btn ghost small" onclick="openSettings()">⚙️ ตั้งค่าเซิร์ฟเวอร์</button>
+    </div>
+    <p class="note center" style="margin-top:12px">💡 คอมพิวเตอร์ใช้ลูกศร/WASD · มือถือ–ไอแพดใช้ปุ่มบนจอหรือปัดนิ้ว<br>🎤 ข้อพูดต้องอนุญาตไมโครโฟน ใช้ Chrome / Edge / Safari พร้อมอินเทอร์เน็ต<br>📱 iPhone/iPad: เปิดผ่าน Safari ตามปกติ (ไม่ต้องเพิ่มลงหน้าจอโฮม) และปิดโหมดเงียบเพื่อให้ได้ยินเสียง</p>
+  </div>
+</div>
+
+<!-- ================= MENU ================= -->
+<div class="screen" id="scMenu">
+  <div class="card">
+    <h1>เลือกด่านผจญภัย</h1>
+    <p class="sub" id="menuHello"></p>
+    <div id="liveBadge"></div>
+    <div id="resumeBox"></div>
+    <div class="lvl-grid" id="lvlGrid"></div>
+    <div class="center" style="margin-top:14px">
+      <button class="btn purple" onclick="openLB()">🏆 กระดานผู้นำ</button>
+      <button class="btn blue" onclick="liveReport()">📊 รายงานผลของฉัน</button>
+      <button class="btn ghost small" id="btnLiveMini" onclick="openLiveBoard()" style="display:none">📺 ดูอันดับสด</button>
+    </div>
+    <h3>📘 กติกาการเล่น</h3>
+    <p class="note">
+      • เก็บ <b>ไอเท็มคำถาม 6 ชิ้น</b> ที่กระจายอยู่ทั่วกระดานให้ครบเพื่อผ่านด่าน<br>
+      • ไอเท็มแต่ละชิ้นมีทักษะต่างกัน 🎧 ฟัง · 🎤 พูด · 📖 อ่าน · ✍️ เขียน (ครบทั้ง 4 ทักษะทุกด่าน)<br>
+      • ข้อ 🎤 พูด: <b>AI จะฟังเสียงอ่านของนักเรียนและตรวจให้</b> พูดซ้ำได้ 3 ครั้งต่อข้อ<br>
+      • ระวังผี 👻 ชนแล้วเสีย 1 ชีวิต (มี 3 ชีวิต) · กินเม็ดพลัง ⭐ แล้วไล่กินผีได้ 7 วินาที<br>
+      • เก็บครบ 6 ชิ้นแล้วเจอ <b>🐲 บอสมังกรไวยากรณ์</b> — ตอบถูกติดกันได้ COMBO คะแนนทวีคูณ<br>
+      • 💾 เกมบันทึกความคืบหน้าอัตโนมัติ ปิดแล้วกลับมาเล่นต่อจุดเดิมได้
+    </p>
+    <div class="center" style="margin-top:10px">
+      <button class="btn ghost small" onclick="toggleMusic()" id="btnMus">🎵 เพลง: เปิด</button>
+      <button class="btn ghost small" onclick="toggleSfx()" id="btnSfx">🔊 เสียง: เปิด</button>
+      <button class="btn ghost small" onclick="logout()">🚪 ออกจากระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GAME ================= -->
+<div class="screen" id="scGame">
+  <div id="hud">
+    <div id="hLvl">ด่าน 1</div>
+    <div id="hScore">⭐ 0</div>
+    <div id="hOrb">🔮 0/6</div>
+    <div id="hLife">❤️❤️❤️</div>
+    <div id="hAcc">✅ 0/0</div>
+    <div id="saveDot">💾</div>
+    <div>
+      <button class="btn blue small" onclick="liveReport()">📊</button>
+      <button class="btn green small" onclick="manualSave()">💾</button>
+      <button class="btn ghost small" onclick="toggleFS()">⛶</button>
+      <button class="btn red small" onclick="pauseMenu()">⏸</button>
+    </div>
+  </div>
+  <div id="gameWrap">
+    <canvas id="cv" width="532" height="420"></canvas>
+    <div id="levelBanner"></div>
+  </div>
+  <div id="pad">
+    <div class="r"><button data-d="U">▲</button></div>
+    <div class="r"><button data-d="L">◀</button><button data-d="D">▼</button><button data-d="R">▶</button></div>
+  </div>
+</div>
+
+<!-- ================= QUESTION / BOSS MODAL ================= -->
+<div class="modal" id="mQ">
+  <div class="mbox" id="qBox">
+    <div id="bossBox">
+      <div id="bossEmo">🐲</div>
+      <div style="font-weight:800;letter-spacing:1px;color:#ff9f9f" id="bossName">GRAMMAR DRAGON</div>
+      <div class="hpwrap"><i id="bossHp"></i></div>
+      <div class="note" id="bossHpTxt"></div>
+      <div id="bossCombo"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <div><span class="qtag" id="qTag">READING</span><span id="qNo" style="font-size:12.5px;color:#9fb3d4"></span></div>
+      <div style="font-size:19px;font-weight:800" id="qClock">02:00</div>
+    </div>
+    <div id="timerBar"><div id="timerFill"></div></div>
+    <div id="qBody"></div>
+    <div class="fb" id="qFb"></div>
+    <div class="center" style="margin-top:12px"><button class="btn green" id="qNext" style="display:none" onclick="closeQuestion()">ไปต่อ ▶</button></div>
+  </div>
+</div>
+
+<!-- ================= PAUSE ================= -->
+<div class="modal" id="mP">
+  <div class="mbox" style="max-width:420px;text-align:center">
+    <h2>⏸ หยุดเกมชั่วคราว</h2>
+    <p class="note" id="pInfo"></p>
+    <div id="pLive"></div>
+    <div style="margin-top:14px">
+      <button class="btn green" onclick="resumeGame()">▶️ เล่นต่อ</button><br>
+      <button class="btn blue small" onclick="liveReport()">📊 รายงานผล</button>
+      <button class="btn small" onclick="manualSave()">💾 บันทึกเกม</button><br>
+      <button class="btn purple small" onclick="openLB()">🏆 กระดานผู้นำ</button>
+      <button class="btn ghost small" onclick="toggleMusic()">🎵 เพลง</button><br>
+      <button class="btn red small" onclick="quitGame()">🚪 ออกและบันทึกผล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SETTINGS ================= -->
+<div class="modal" id="mS">
+  <div class="mbox" style="max-width:560px">
+    <h2>⚙️ ตั้งค่าเซิร์ฟเวอร์แข่งสด</h2>
+    <p class="note">ถ้า <b>เว้นว่างไว้</b> เกมจะใช้โหมดแข่งสดแบบ <b>ในเครื่อง/เบราว์เซอร์เดียวกัน</b> ได้ทันที (เหมาะกับคอมพิวเตอร์เครื่องเดียวหรือหลายแท็บ)<br>
+    ถ้าต้องการแข่งข้ามเครื่องทั้งห้อง ให้วาง URL ของ <b>Firebase Realtime Database</b> หรือ <b>Google Apps Script Web App</b></p>
+    <label>🌐 Server URL</label>
+    <input id="inNet" placeholder="https://xxxx-default-rtdb.asia-southeast1.firebasedatabase.app">
+    <p class="note">ตัวอย่าง Firebase: <code>https://ชื่อโปรเจกต์-default-rtdb.asia-southeast1.firebasedatabase.app</code><br>
+    ตัวอย่าง Google Sheets: <code>https://script.google.com/macros/s/AKfy.../exec</code></p>
+    <div class="center" style="margin-top:12px">
+      <button class="btn green" onclick="saveSettings()">💾 บันทึก</button>
+      <button class="btn ghost" onclick="testNet()">🔌 ทดสอบการเชื่อมต่อ</button>
+      <button class="btn red small" onclick="closeSettings()">ปิด</button>
+    </div>
+    <p class="note center" id="netTest"></p>
+  </div>
+</div>
+
+<!-- ================= LEADERBOARD (local) ================= -->
+<div class="screen" id="scLB">
+  <div class="card">
+    <h1>🏆 กระดานผู้นำประจำชั้น</h1>
+    <p class="sub">จัดอันดับจาก <b>คะแนนสูงสุด</b> ของนักเรียนแต่ละคน (ข้อมูลในเครื่องนี้)</p>
+    <div class="chips" id="lbChips"></div>
+    <div id="lbPodium"></div>
+    <div id="lbList"></div>
+    <div class="center" style="margin-top:16px">
+      <button class="btn" onclick="backFromLB()">◀ กลับ</button>
+      <button class="btn ghost small" onclick="printLB()">🖨️ พิมพ์กระดานผู้นำ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LIVE BOARD (projector) ================= -->
+<div class="screen" id="scLive">
+  <div class="card">
+    <h1>📺 กระดานแข่งสด <span id="liveState"></span></h1>
+    <div class="center" style="margin-bottom:8px">
+      <input id="inRoom2" placeholder="รหัสห้อง เช่น P5-1" style="max-width:220px;display:inline-block" oninput="this.value=this.value.toUpperCase()">
+      <button class="btn green small" onclick="startLiveBoard()">▶️ เริ่มแสดงผล</button>
+      <button class="btn ghost small" onclick="stopLiveBoard()">⏹ หยุด</button>
+      <button class="btn ghost small" onclick="toggleProj()">🔎 โหมดโปรเจกเตอร์</button>
+      <button class="btn ghost small" onclick="toggleFS()">⛶ เต็มจอ</button>
+      <button class="btn red small" onclick="clearRoom()">🗑️ ล้างห้อง</button>
+      <button class="btn small" onclick="backFromLive()">◀ กลับ</button>
+    </div>
+    <div class="stat" id="liveStat"></div>
+    <div id="livePodium"></div>
+    <div id="liveList"></div>
+    <p class="note center" id="liveNote"></p>
+  </div>
+</div>
+
+<!-- ================= RESULT ================= -->
+<div class="screen" id="scResult">
+  <div class="card">
+    <h1 id="rsTitle">🏁 สรุปผลการเรียนรู้</h1>
+    <p class="sub" id="rsWho"></p>
+    <div class="stat" id="rsStat"></div>
+    <h3>📊 ผลประเมินรายทักษะ (ฟัง–พูด–อ่าน–เขียน)</h3>
+    <div id="rsSkill"></div>
+    <h3>🧠 ผลประเมินความเข้าใจหลักไวยากรณ์</h3>
+    <div id="rsGram"></div>
+    <h3>📈 ผลรายด่าน</h3>
+    <div id="rsLevel"></div>
+    <h3>📝 คำที่ควรทบทวน</h3>
+    <div id="rsReview" class="note"></div>
+    <div class="center" style="margin-top:16px" id="rsBtns"></div>
+  </div>
+</div>
+
+<!-- ================= TEACHER ================= -->
+<div class="screen" id="scTeacher">
+  <div class="card">
+    <h1>🔐 ระบบรายงานผลสำหรับคุณครู</h1>
+    <div id="tLogin" style="max-width:380px;margin:auto">
+      <label>รหัสผ่านครู</label>
+      <input id="tPass" type="password" placeholder="ใส่รหัสผ่าน" onkeydown="if(event.key==='Enter')teacherLogin()">
+      <div class="center" style="margin-top:14px">
+        <button class="btn" onclick="teacherLogin()">เข้าสู่ระบบ</button>
+        <button class="btn ghost" onclick="show('scLogin')">ย้อนกลับ</button>
+      </div>
+      <p class="note center" style="margin-top:12px">รหัสผ่านเริ่มต้น: <b>teacher2024</b></p>
+    </div>
+    <div id="tPanel" style="display:none">
+      <div class="stat" id="tStat"></div>
+      <div class="center" style="margin-bottom:8px">
+        <button class="btn purple small" onclick="openLiveBoard()">📺 จอแข่งสด</button>
+        <button class="btn green small" onclick="exportCSV()">📊 Export CSV</button>
+        <button class="btn blue small" onclick="exportTSV()">📋 คัดลอกลง Sheets</button>
+        <button class="btn small" onclick="printClass()">🖨️ พิมพ์รายงานชั้นเรียน</button>
+        <button class="btn ghost small" onclick="openLB()">🏆 Leaderboard</button>
+        <button class="btn ghost small" onclick="openSettings()">⚙️ เซิร์ฟเวอร์</button>
+        <button class="btn ghost small" onclick="exportJSON()">🗂️ JSON</button>
+        <button class="btn ghost small" onclick="changePass()">🔑 เปลี่ยนรหัส</button>
+        <button class="btn red small" onclick="clearData()">🗑️ ล้างข้อมูล</button>
+        <button class="btn ghost small" onclick="show('scLogin')">🚪 ออก</button>
+      </div>
+      <input id="tSearch" placeholder="🔍 ค้นหาชื่อ / ชั้น" oninput="renderTeacher()">
+      <div class="scroll"><table id="tTable"></table></div>
+      <div id="tDetail"></div>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+/* =====================================================================
+   ⚙️ ตั้งค่าเซิร์ฟเวอร์ (ไม่ใส่ก็เล่นได้ทันที)
+   - Firebase Realtime Database  → วาง databaseURL
+   - Google Apps Script Web App  → วาง /exec URL
+===================================================================== */
+const SERVER_URL = "";   /* ตัวอย่าง: "https://myapp-default-rtdb.asia-southeast1.firebasedatabase.app" */
+
+/* =====================================================================
+   1) คลังคำคุณศัพท์ ป.5 — 50 คำ
+===================================================================== */
+const WORDS=[
+{w:"short",th:"สั้น / เตี้ย",c:"shorter",rule:"er"},
+{w:"tall",th:"สูง (คน สัตว์ ต้นไม้)",c:"taller",rule:"er"},
+{w:"big",th:"ใหญ่",c:"bigger",rule:"double"},
+{w:"small",th:"เล็ก",c:"smaller",rule:"er"},
+{w:"long",th:"ยาว",c:"longer",rule:"er"},
+{w:"fast",th:"เร็ว",c:"faster",rule:"er"},
+{w:"slow",th:"ช้า",c:"slower",rule:"er"},
+{w:"old",th:"แก่ / เก่า",c:"older",rule:"er"},
+{w:"young",th:"อายุน้อย",c:"younger",rule:"er"},
+{w:"new",th:"ใหม่",c:"newer",rule:"er"},
+{w:"strong",th:"แข็งแรง",c:"stronger",rule:"er"},
+{w:"clean",th:"สะอาด",c:"cleaner",rule:"er"},
+{w:"dirty",th:"สกปรก",c:"dirtier",rule:"y"},
+{w:"happy",th:"มีความสุข",c:"happier",rule:"y"},
+{w:"sad",th:"เศร้า",c:"sadder",rule:"double"},
+{w:"hot",th:"ร้อน",c:"hotter",rule:"double"},
+{w:"cold",th:"หนาว / เย็น",c:"colder",rule:"er"},
+{w:"easy",th:"ง่าย",c:"easier",rule:"y"},
+{w:"hard",th:"ยาก / แข็ง",c:"harder",rule:"er"},
+{w:"heavy",th:"หนัก",c:"heavier",rule:"y"},
+{w:"light",th:"เบา",c:"lighter",rule:"er"},
+{w:"thin",th:"ผอม / บาง",c:"thinner",rule:"double"},
+{w:"fat",th:"อ้วน",c:"fatter",rule:"double"},
+{w:"wide",th:"กว้าง",c:"wider",rule:"e"},
+{w:"deep",th:"ลึก",c:"deeper",rule:"er"},
+{w:"high",th:"สูง (ภูเขา สิ่งของ)",c:"higher",rule:"er"},
+{w:"low",th:"ต่ำ",c:"lower",rule:"er"},
+{w:"near",th:"ใกล้",c:"nearer",rule:"er"},
+{w:"far",th:"ไกล",c:"farther",rule:"er"},
+{w:"rich",th:"รวย",c:"richer",rule:"er"},
+{w:"busy",th:"ยุ่ง",c:"busier",rule:"y"},
+{w:"funny",th:"ตลก",c:"funnier",rule:"y"},
+{w:"angry",th:"โกรธ",c:"angrier",rule:"y"},
+{w:"hungry",th:"หิว",c:"hungrier",rule:"y"},
+{w:"pretty",th:"สวย / น่ารัก",c:"prettier",rule:"y"},
+{w:"quiet",th:"เงียบ",c:"quieter",rule:"er"},
+{w:"noisy",th:"เสียงดัง",c:"noisier",rule:"y"},
+{w:"safe",th:"ปลอดภัย",c:"safer",rule:"e"},
+{w:"nice",th:"ดี / น่ารัก",c:"nicer",rule:"e"},
+{w:"kind",th:"ใจดี",c:"kinder",rule:"er"},
+{w:"beautiful",th:"สวยงาม",c:"more beautiful",rule:"more"},
+{w:"expensive",th:"แพง",c:"more expensive",rule:"more"},
+{w:"delicious",th:"อร่อย",c:"more delicious",rule:"more"},
+{w:"difficult",th:"ยาก",c:"more difficult",rule:"more"},
+{w:"important",th:"สำคัญ",c:"more important",rule:"more"},
+{w:"interesting",th:"น่าสนใจ",c:"more interesting",rule:"more"},
+{w:"dangerous",th:"อันตราย",c:"more dangerous",rule:"more"},
+{w:"careful",th:"ระมัดระวัง",c:"more careful",rule:"more"},
+{w:"popular",th:"เป็นที่นิยม",c:"more popular",rule:"more"},
+{w:"exciting",th:"น่าตื่นเต้น",c:"more exciting",rule:"more"}];
+
+/* =====================================================================
+   2) คลังประโยค 50 ประโยค
+===================================================================== */
+const SENTS=[
+{s:"An elephant is ___ than a dog.",a:"big",th:"ช้างตัวใหญ่กว่าสุนัข"},
+{s:"My brother is ___ than me.",a:"tall",th:"พี่ชายของฉันสูงกว่าฉัน"},
+{s:"A cheetah is ___ than a horse.",a:"fast",th:"เสือชีตาห์วิ่งเร็วกว่าม้า"},
+{s:"A turtle is ___ than a rabbit.",a:"slow",th:"เต่าเคลื่อนที่ช้ากว่ากระต่าย"},
+{s:"This book is ___ than that comic.",a:"interesting",th:"หนังสือเล่มนี้น่าสนใจกว่าการ์ตูนเล่มนั้น"},
+{s:"Summer in Thailand is ___ than winter.",a:"hot",th:"ฤดูร้อนในประเทศไทยร้อนกว่าฤดูหนาว"},
+{s:"Ice cream is ___ than hot soup.",a:"cold",th:"ไอศกรีมเย็นกว่าซุปร้อน"},
+{s:"Your school bag is ___ than mine.",a:"heavy",th:"กระเป๋านักเรียนของเธอหนักกว่าของฉัน"},
+{s:"A feather is ___ than a stone.",a:"light",th:"ขนนกเบากว่าก้อนหิน"},
+{s:"Math is ___ than art for me.",a:"difficult",th:"คณิตศาสตร์ยากกว่าศิลปะสำหรับฉัน"},
+{s:"Today I am ___ than yesterday.",a:"happy",th:"วันนี้ฉันมีความสุขกว่าเมื่อวาน"},
+{s:"My room is ___ than my sister's room.",a:"clean",th:"ห้องของฉันสะอาดกว่าห้องของน้องสาว"},
+{s:"The blue shirt is ___ than the red one.",a:"expensive",th:"เสื้อสีน้ำเงินแพงกว่าตัวสีแดง"},
+{s:"My mother's food is ___ than fast food.",a:"delicious",th:"อาหารฝีมือคุณแม่อร่อยกว่าอาหารจานด่วน"},
+{s:"My grandfather is ___ than my father.",a:"old",th:"คุณปู่อายุมากกว่าคุณพ่อ"},
+{s:"My cousin is ___ than me.",a:"young",th:"ลูกพี่ลูกน้องของฉันอายุน้อยกว่าฉัน"},
+{s:"The Nile River is ___ than the Chao Phraya River.",a:"long",th:"แม่น้ำไนล์ยาวกว่าแม่น้ำเจ้าพระยา"},
+{s:"This box is ___ than that box.",a:"small",th:"กล่องใบนี้เล็กกว่ากล่องใบนั้น"},
+{s:"A lion is ___ than a cat.",a:"strong",th:"สิงโตแข็งแรงกว่าแมว"},
+{s:"The sea is ___ than the swimming pool.",a:"deep",th:"ทะเลลึกกว่าสระว่ายน้ำ"},
+{s:"This road is ___ than that street.",a:"wide",th:"ถนนสายนี้กว้างกว่าถนนสายนั้น"},
+{s:"Mount Everest is ___ than Doi Inthanon.",a:"high",th:"ยอดเขาเอเวอเรสต์สูงกว่าดอยอินทนนท์"},
+{s:"My score is ___ than his score.",a:"low",th:"คะแนนของฉันต่ำกว่าคะแนนของเขา"},
+{s:"The library is ___ than the market.",a:"quiet",th:"ห้องสมุดเงียบกว่าตลาด"},
+{s:"The city is ___ than the village.",a:"noisy",th:"เมืองเสียงดังกว่าหมู่บ้าน"},
+{s:"Walking is ___ than running on a wet floor.",a:"safe",th:"การเดินปลอดภัยกว่าการวิ่งบนพื้นเปียก"},
+{s:"English is ___ than science for me.",a:"easy",th:"ภาษาอังกฤษง่ายกว่าวิทยาศาสตร์สำหรับฉัน"},
+{s:"This test is ___ than the last test.",a:"hard",th:"ข้อสอบครั้งนี้ยากกว่าข้อสอบครั้งที่แล้ว"},
+{s:"Her dress is ___ than my dress.",a:"beautiful",th:"ชุดของเธอสวยกว่าชุดของฉัน"},
+{s:"A snake is ___ than a frog.",a:"dangerous",th:"งูอันตรายกว่ากบ"},
+{s:"Health is ___ than money.",a:"important",th:"สุขภาพสำคัญกว่าเงิน"},
+{s:"Football is ___ than golf in my school.",a:"popular",th:"ฟุตบอลเป็นที่นิยมกว่ากอล์ฟในโรงเรียนของฉัน"},
+{s:"This movie is ___ than that cartoon.",a:"exciting",th:"ภาพยนตร์เรื่องนี้น่าตื่นเต้นกว่าการ์ตูนเรื่องนั้น"},
+{s:"You must be ___ than before.",a:"careful",th:"เธอต้องระมัดระวังมากกว่าเดิม"},
+{s:"My shoes are ___ than your shoes.",a:"dirty",th:"รองเท้าของฉันสกปรกกว่ารองเท้าของเธอ"},
+{s:"He was ___ than his friend after the game.",a:"sad",th:"เขาเศร้ากว่าเพื่อนหลังจบเกม"},
+{s:"My teacher is ___ than I expected.",a:"kind",th:"ครูของฉันใจดีกว่าที่ฉันคิดไว้"},
+{s:"This puppy is ___ than that one.",a:"nice",th:"ลูกสุนัขตัวนี้น่ารักกว่าตัวนั้น"},
+{s:"My mother is ___ than my aunt.",a:"busy",th:"คุณแม่ยุ่งกว่าคุณป้า"},
+{s:"The clown is ___ than the magician.",a:"funny",th:"ตัวตลกตลกกว่านักมายากล"},
+{s:"The bull was ___ than the farmer.",a:"angry",th:"วัวโกรธกว่าชาวนา"},
+{s:"I am ___ than my brother now.",a:"hungry",th:"ตอนนี้ฉันหิวกว่าพี่ชาย"},
+{s:"This flower is ___ than that one.",a:"pretty",th:"ดอกไม้ดอกนี้สวยกว่าดอกนั้น"},
+{s:"His family is ___ than my family.",a:"rich",th:"ครอบครัวของเขารวยกว่าครอบครัวของฉัน"},
+{s:"My phone is ___ than my sister's phone.",a:"new",th:"โทรศัพท์ของฉันใหม่กว่าของน้องสาว"},
+{s:"A pencil is ___ than a banana.",a:"thin",th:"ดินสอเล็กเรียวกว่ากล้วย"},
+{s:"This cat is ___ than that kitten.",a:"fat",th:"แมวตัวนี้อ้วนกว่าลูกแมวตัวนั้น"},
+{s:"The school is ___ to my house than the temple.",a:"near",th:"โรงเรียนอยู่ใกล้บ้านฉันมากกว่าวัด"},
+{s:"Chiang Mai is ___ from Phuket than Bangkok.",a:"far",th:"เชียงใหม่อยู่ไกลจากภูเก็ตมากกว่ากรุงเทพฯ"},
+{s:"Your hair is ___ than my hair.",a:"short",th:"ผมของเธอสั้นกว่าผมของฉัน"}];
+
+const RULE_TIP={
+ er:"คำพยางค์สั้น → เติม <b>-er</b> ท้ายคำได้เลย",
+ double:"คำสั้นที่ลงท้ายด้วย <b>สระ + พยัญชนะ</b> → <b>ซ้ำตัวสะกดท้าย</b> แล้วเติม -er",
+ y:"คำที่ลงท้ายด้วย <b>-y</b> → เปลี่ยน y เป็น <b>i</b> แล้วเติม -er",
+ e:"คำที่ลงท้ายด้วย <b>-e</b> อยู่แล้ว → เติมเพียง <b>-r</b>",
+ more:"คำยาวตั้งแต่ 2–3 พยางค์ขึ้นไป → ใช้ <b>more</b> นำหน้า (ห้ามเติม -er)"};
+
+/* =====================================================================
+   3) ธีม 5 ด่าน
+===================================================================== */
+const THEMES=[
+{id:1,name:"ป่าไม้ Forest",em:"🌳",bg:"#07230f",wall:"#1f7a35",wall2:"#0f4a1f",dot:"#a8e063",ghost:["#ff6b6b","#ffa94d","#63e6be","#da77f2","#ffd43b"],tempo:.155,
+ mel:[0,4,7,4,5,9,7,4,0,4,7,12,11,7,4,2],bass:[-12,-12,-5,-5,-7,-7,-12,-12],boss:"🐲",bossName:"FOREST DRAGON"},
+{id:2,name:"น้ำตก Waterfall",em:"💧",bg:"#04223a",wall:"#1d7fc0",wall2:"#0d4a72",dot:"#9be7ff",ghost:["#ff8787","#ffd43b","#69db7c","#e599f7","#ff922b"],tempo:.14,
+ mel:[7,9,12,14,12,9,7,5,4,7,9,12,16,14,12,9],bass:[-5,-5,-10,-10,-3,-3,-5,-5],boss:"🐙",bossName:"WATER KRAKEN"},
+{id:3,name:"ทะเลทราย Desert",em:"🌵",bg:"#3a2208",wall:"#d79a3a",wall2:"#8a5c17",dot:"#ffe08a",ghost:["#ff5c5c","#c084fc","#4dd4c0","#ffd43b","#fb7185"],tempo:.125,
+ mel:[0,1,4,5,7,8,7,5,4,1,0,-1,0,4,7,8],bass:[-12,-12,-8,-8,-5,-5,-12,-12],boss:"🦂",bossName:"SAND SCORPION"},
+{id:4,name:"ชายทะเล Beach",em:"🐚",bg:"#03384a",wall:"#19b6d4",wall2:"#0b6a80",dot:"#ffe9a8",ghost:["#ff7ab6","#ffd43b","#74c0fc","#8ce99a","#ffa94d"],tempo:.13,
+ mel:[4,7,9,12,9,7,4,2,0,4,7,9,11,9,7,4],bass:[-8,-8,-3,-3,-5,-5,-8,-8],boss:"🦈",bossName:"OCEAN SHARK"},
+{id:5,name:"หิมะ Snow",em:"❄️",bg:"#0d2038",wall:"#8ec7f5",wall2:"#3c6ea0",dot:"#ffffff",ghost:["#ff6b6b","#845ef7","#20c997","#fab005","#f06595"],tempo:.115,
+ mel:[12,11,9,7,9,11,12,14,16,14,12,11,9,7,5,7],bass:[-12,-12,-7,-7,-9,-9,-5,-5],boss:"👹",bossName:"ICE TITAN"}];
+const MENU_THEME={tempo:.16,mel:[0,7,4,7,9,7,4,2,0,7,12,7,9,7,4,0],bass:[-12,-12,-5,-5,-8,-8,-7,-7]};
+const BOSS_MUSIC={tempo:.105,mel:[0,0,3,0,5,0,3,-1,0,0,3,7,6,3,0,-2],bass:[-12,-12,-12,-9,-10,-10,-12,-12]};
+
+/* =====================================================================
+   4) ระบบเสียง
+===================================================================== */
+const AU={ctx:null,master:null,mg:null,sg:null,music:true,sfx:true,timer:null,step:0,next:0,cur:null};
+function initAudio(){
+  if(AU.ctx)return;
+  try{
+    AU.ctx=new (window.AudioContext||window.webkitAudioContext)();
+    AU.master=AU.ctx.createGain();AU.master.gain.value=.9;AU.master.connect(AU.ctx.destination);
+    AU.mg=AU.ctx.createGain();AU.mg.gain.value=.22;AU.mg.connect(AU.master);
+    AU.sg=AU.ctx.createGain();AU.sg.gain.value=.55;AU.sg.connect(AU.master);
+  }catch(e){}
+}
+let ttsWarm=false;
+function unlockAudio(){
+  initAudio();
+  if(AU.ctx&&AU.ctx.state!=='running'){try{AU.ctx.resume()}catch(e){}}
+  if(AU.ctx&&!AU.unl){
+    try{const b=AU.ctx.createBuffer(1,1,22050),sr=AU.ctx.createBufferSource();sr.buffer=b;sr.connect(AU.ctx.destination);sr.start(0);AU.unl=true}catch(e){}
+  }
+  if(!ttsWarm&&'speechSynthesis' in window){
+    try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);ttsWarm=true}catch(e){}
+  }
+}
+['touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault()));
+let wl=null;
+async function keepAwake(){
+  try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){wl=null}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&G.playing)keepAwake()});
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+const f=n=>261.63*Math.pow(2,n/12);
+function tone(freq,dur,type,vol,dest,slide){
+  if(!AU.ctx)return;
+  const o=AU.ctx.createOscillator(),g=AU.ctx.createGain(),t=AU.ctx.currentTime;
+  o.type=type||'square';o.frequency.setValueAtTime(freq,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t+dur);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.3,t+.012);
+  g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+  o.connect(g);g.connect(dest||AU.sg);o.start(t);o.stop(t+dur+.03);
+}
+function noise(dur,vol,dest){
+  if(!AU.ctx)return;
+  const n=Math.floor(AU.ctx.sampleRate*dur),b=AU.ctx.createBuffer(1,n,AU.ctx.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const s=AU.ctx.createBufferSource();s.buffer=b;
+  const g=AU.ctx.createGain();g.gain.value=vol||.15;
+  s.connect(g);g.connect(dest||AU.sg);s.start();
+}
+const SFX={
+ chomp:()=>{if(AU.sfx)tone(440,.055,'square',.16,AU.sg,300)},
+ orb:()=>{if(!AU.sfx)return;[523,659,784,1046].forEach((v,i)=>setTimeout(()=>tone(v,.11,'triangle',.3),i*55))},
+ power:()=>{if(!AU.sfx)return;[262,330,392,523,659,784].forEach((v,i)=>setTimeout(()=>tone(v,.1,'sawtooth',.25),i*45))},
+ eatghost:()=>{if(AU.sfx)tone(180,.35,'sawtooth',.3,AU.sg,900)},
+ die:()=>{if(!AU.sfx)return;tone(500,.7,'sawtooth',.35,AU.sg,60);setTimeout(()=>noise(.35,.2),120)},
+ correct:()=>{if(!AU.sfx)return;[523,659,784,1046,1318].forEach((v,i)=>setTimeout(()=>tone(v,.16,'triangle',.32),i*80))},
+ wrong:()=>{if(!AU.sfx)return;tone(220,.22,'square',.3);setTimeout(()=>tone(160,.4,'square',.3),190)},
+ tick:()=>{if(AU.sfx)tone(1200,.05,'square',.12)},
+ levelup:()=>{if(!AU.sfx)return;[392,523,659,784,1046,1318,1568].forEach((v,i)=>setTimeout(()=>tone(v,.19,'square',.3),i*95))},
+ slash:()=>{if(!AU.sfx)return;noise(.18,.28);tone(880,.22,'sawtooth',.3,AU.sg,180)},
+ roar:()=>{if(!AU.sfx)return;tone(120,.75,'sawtooth',.34,AU.sg,55);noise(.5,.2)},
+ combo:n=>{if(!AU.sfx)return;[0,4,7,12].slice(0,Math.min(4,n+1)).forEach((v,i)=>setTimeout(()=>tone(f(v+12),.12,'triangle',.28),i*70))},
+ victory:()=>{if(!AU.sfx)return;[523,659,784,1046,1318,1568,2093].forEach((v,i)=>setTimeout(()=>tone(v,.22,'triangle',.32),i*110))},
+ gameover:()=>{if(!AU.sfx)return;[523,466,392,330,262,196].forEach((v,i)=>setTimeout(()=>tone(v,.32,'sawtooth',.3),i*180))},
+ save:()=>{if(!AU.sfx)return;[880,1174].forEach((v,i)=>setTimeout(()=>tone(v,.1,'triangle',.22),i*90))},
+ click:()=>{if(AU.sfx)tone(760,.05,'square',.14)}
+};
+function startMusic(key){
+  initAudio();if(!AU.ctx)return;stopMusic();
+  AU.cur = key==='menu'?MENU_THEME : key==='boss'?BOSS_MUSIC : THEMES[key-1];
+  if(!AU.music||!AU.cur)return;
+  AU.step=0;AU.next=AU.ctx.currentTime+.08;
+  AU.timer=setInterval(schedMusic,25);
+}
+function schedMusic(){
+  if(!AU.ctx||!AU.cur)return;
+  const T=AU.cur,spb=T.tempo;
+  while(AU.next<AU.ctx.currentTime+.25){
+    const n=T.mel[AU.step%T.mel.length];
+    if(n!==null)tone(f(n+12),spb*.85,'square',.16,AU.mg);
+    tone(f(T.bass[AU.step%T.bass.length]),spb*1.5,'triangle',.22,AU.mg);
+    if(AU.step%2===0)noise(.045,.05,AU.mg);
+    if(AU.step%8===0)noise(.11,.11,AU.mg);
+    AU.next+=spb;AU.step++;
+  }
+}
+function stopMusic(){if(AU.timer){clearInterval(AU.timer);AU.timer=null}}
+function toggleMusic(){AU.music=!AU.music;
+  const b=document.getElementById('btnMus');if(b)b.textContent='🎵 เพลง: '+(AU.music?'เปิด':'ปิด');
+  toast(AU.music?'🎵 เปิดเพลง':'🔇 ปิดเพลง');
+  if(!AU.music)stopMusic();else startMusic(G.playing?G.level:'menu')}
+function toggleSfx(){AU.sfx=!AU.sfx;
+  const b=document.getElementById('btnSfx');if(b)b.textContent='🔊 เสียง: '+(AU.sfx?'เปิด':'ปิด');
+  toast(AU.sfx?'🔊 เปิดเสียงเอฟเฟกต์':'🔇 ปิดเสียงเอฟเฟกต์')}
+function speak(text,rate){
+  if(!('speechSynthesis' in window))return;
+  try{
+    speechSynthesis.cancel();
+    clearTimeout(speak._t);
+    speak._t=setTimeout(()=>{
+      try{
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang='en-US';u.rate=rate||.82;u.pitch=1;
+        const vs=speechSynthesis.getVoices();
+        const v=vs.find(x=>/en[-_]US/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));
+        if(v)u.voice=v;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    },70);
+  }catch(e){}
+}
+if('speechSynthesis' in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}
+
+/* =====================================================================
+   5) สถานะหลัก + ยูทิลิตี้
+===================================================================== */
+const COLS=19,ROWS=15,TS=28,ORB_COUNT=6;
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+const G={student:null,mode:'solo',level:1,score:0,lives:3,playing:false,state:'idle',
+ maze:null,pellets:null,orbs:[],power:[],player:null,ghosts:[],fright:0,orbGot:0,
+ log:[],unlocked:1,usedW:[],usedS:[],qIndex:0,startTime:0,bestLevel:1};
+const DIRS={U:{x:0,y:-1},D:{x:0,y:1},L:{x:-1,y:0},R:{x:1,y:0}};
+let prevScreen='scLogin';
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.body.classList.toggle('playing',id==='scGame');
+  if(id==='scGame')setTimeout(fitCanvas,30);
+  window.scrollTo(0,0);
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+if('ontouchstart' in window||navigator.maxTouchPoints>0)document.body.classList.add('touch');
+
+function fitCanvas(){
+  const hud=document.getElementById('hud');
+  const isTouch=document.body.classList.contains('touch');
+  const land=window.innerWidth>window.innerHeight;
+  const reserve=(isTouch&&!(land&&window.innerHeight<520))?188:70;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  const availH=vh-(hud?hud.offsetHeight:44)-reserve-24;
+  const availW=Math.min(window.innerWidth-22,780);
+  const ratio=cv.width/cv.height;
+  let w=availW,h=w/ratio;
+  if(h>availH&&availH>170){h=availH;w=h*ratio}
+  cv.style.width=Math.round(w)+'px';cv.style.height=Math.round(h)+'px';
+}
+window.addEventListener('resize',fitCanvas);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',fitCanvas);
+window.addEventListener('orientationchange',()=>setTimeout(fitCanvas,250));
+function toggleFS(){
+  const el=document.documentElement;
+  if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+    (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el);
+  }else{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}
+  setTimeout(fitCanvas,420);
+}
+
+/* =====================================================================
+   6) NET — ระบบแข่งสด (Firebase REST / Google Apps Script / ในเครื่อง)
+===================================================================== */
+const NET={mode:'solo',room:'',uid:'',online:false,lastPush:0,pushTimer:null,pollTimer:null,bc:null};
+try{NET.bc=('BroadcastChannel' in window)?new BroadcastChannel('cq-live'):null}catch(e){NET.bc=null}
+function netBase(){return (localStorage.getItem('cqNet')||SERVER_URL||'').trim().replace(/\/+$/,'')}
+const isGAS=u=>/script\.google\.com/.test(u);
+function safeKey(s){return String(s).replace(/[.#$\[\]\/]/g,'_').replace(/\s+/g,'_')}
+function makeUid(st){return safeKey(st.cls+'-'+st.no+'-'+st.name)}
+function livePayload(){
+  const ok=G.log.filter(l=>l.correct).length;
+  return{name:G.student.name,cls:G.student.cls,no:G.student.no,score:G.score,level:G.level,
+    correct:ok,total:G.log.length,lives:G.lives,orb:G.orbGot,
+    status:G.playing?(G.state==='bonus'?'boss':'playing'):'idle',t:Date.now()};
+}
+function setOnline(v){NET.online=v}
+function localRoomKey(r){return 'cqLive::'+r}
+function localPush(room,uid,p){
+  try{
+    const k=localRoomKey(room),o=JSON.parse(localStorage.getItem(k)||'{}');
+    o[uid]=p;localStorage.setItem(k,JSON.stringify(o));
+    if(NET.bc)NET.bc.postMessage({room:room});
+  }catch(e){}
+}
+async function netPush(force){
+  if(NET.mode!=='live'||!G.student)return;
+  const now=Date.now();
+  if(!force&&now-NET.lastPush<1800)return;
+  NET.lastPush=now;
+  const p=livePayload(),base=netBase(),room=NET.room,uid=NET.uid;
+  localPush(room,uid,p);
+  if(!base)return;
+  try{
+    if(isGAS(base)){
+      await fetch(base+'?action=push&room='+encodeURIComponent(room)+'&uid='+encodeURIComponent(uid)+'&data='+encodeURIComponent(JSON.stringify(p)));
+    }else{
+      await fetch(base+'/rooms/'+encodeURIComponent(room)+'/players/'+encodeURIComponent(uid)+'.json',
+        {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+    }
+    setOnline(true);
+  }catch(e){setOnline(false)}
+}
+async function netList(room){
+  const base=netBase();
+  if(base){
+    try{
+      let r;
+      if(isGAS(base))r=await fetch(base+'?action=list&room='+encodeURIComponent(room));
+      else r=await fetch(base+'/rooms/'+encodeURIComponent(room)+'/players.json');
+      const j=await r.json();setOnline(true);
+      if(j&&typeof j==='object')return j;
+      return {};
+    }catch(e){setOnline(false)}
+  }
+  try{return JSON.parse(localStorage.getItem(localRoomKey(room))||'{}')}catch(e){return{}}
+}
+async function netClear(room){
+  const base=netBase();
+  localStorage.removeItem(localRoomKey(room));
+  if(NET.bc)NET.bc.postMessage({room});
+  if(!base)return;
+  try{
+    if(isGAS(base))await fetch(base+'?action=clear&room='+encodeURIComponent(room));
+    else await fetch(base+'/rooms/'+encodeURIComponent(room)+'.json',{method:'DELETE'});
+  }catch(e){}
+}
+/* ---- Settings modal ---- */
+function openSettings(){document.getElementById('inNet').value=localStorage.getItem('cqNet')||SERVER_URL||'';
+  document.getElementById('netTest').textContent='';document.getElementById('mS').classList.add('on')}
+function closeSettings(){document.getElementById('mS').classList.remove('on')}
+function saveSettings(){
+  const v=document.getElementById('inNet').value.trim();
+  if(v)localStorage.setItem('cqNet',v);else localStorage.removeItem('cqNet');
+  toast('✅ บันทึกการตั้งค่าแล้ว');updNetHint();closeSettings();
+}
+async function testNet(){
+  const el=document.getElementById('netTest');
+  const v=document.getElementById('inNet').value.trim();
+  if(!v){el.textContent='ℹ️ ไม่ได้ใส่ URL — จะใช้โหมดแข่งสดภายในเครื่อง/เบราว์เซอร์เดียวกัน';return}
+  el.textContent='⏳ กำลังทดสอบ...';
+  try{
+    const u=v.replace(/\/+$/,'');
+    const r=await fetch(isGAS(u)?u+'?action=list&room=TEST':u+'/rooms/TEST/players.json');
+    await r.json();el.textContent='✅ เชื่อมต่อสำเร็จ พร้อมใช้งานแข่งสดข้ามเครื่อง';
+  }catch(e){el.textContent='❌ เชื่อมต่อไม่สำเร็จ — ตรวจ URL หรือสิทธิ์การเข้าถึง (Rules) อีกครั้ง'}
+}
+function updNetHint(){
+  const h=document.getElementById('netHint');
+  h.innerHTML = netBase()
+    ? '🌐 เชื่อมต่อเซิร์ฟเวอร์: แข่งข้ามเครื่องได้ทั้งห้อง'
+    : '💻 ยังไม่ได้ตั้งค่าเซิร์ฟเวอร์ — แข่งได้ภายในเครื่อง/เบราว์เซอร์เดียวกัน (กด ⚙️ เพื่อตั้งค่า)';
+}
+function selectMode(m){
+  G.mode=m;SFX.click();
+  document.getElementById('mdSolo').classList.toggle('on',m==='solo');
+  document.getElementById('mdLive').classList.toggle('on',m==='live');
+  document.getElementById('roomBox').style.display=m==='live'?'block':'none';
+  updNetHint();
+}
+
+/* =====================================================================
+   7) ระบบบันทึกอัตโนมัติ (เก็บสภาพกระดานทั้งหมด)
+===================================================================== */
+const saveKey=st=>'cqSave::'+safeKey(st.name+'|'+st.cls+'|'+st.no);
+function snapshot(){
+  if(!G.playing||!G.maze)return null;
+  return{level:G.level,orbGot:G.orbGot,fright:G.fright,
+   maze:G.maze.map(r=>r.slice()),pellets:G.pellets.map(r=>r.map(v=>v?1:0)),
+   orbs:G.orbs.map(o=>({r:o.r,c:o.c,type:o.type})),power:G.power.map(p=>p.slice()),
+   player:{x:G.player.x,y:G.player.y,dir:{x:G.player.dir.x,y:G.player.dir.y}},
+   ghosts:G.ghosts.map(g=>({x:g.x,y:g.y,dir:{x:g.dir.x,y:g.dir.y},color:g.color,speed:g.speed}))};
+}
+function saveGame(silent){
+  if(!G.student)return;
+  const data={v:3,name:G.student.name,cls:G.student.cls,no:G.student.no,mode:G.mode,
+   level:G.level,score:G.score,lives:G.lives,unlocked:G.unlocked,bestLevel:G.bestLevel,
+   log:G.log,qIndex:G.qIndex,usedW:G.usedW,usedS:G.usedS,startTime:G.startTime,
+   snap:(G.state==='play'||G.state==='paused'||G.state==='question')?snapshot():null,savedAt:Date.now()};
+  try{localStorage.setItem(saveKey(G.student),JSON.stringify(data))}catch(e){}
+  const d=document.getElementById('saveDot');
+  if(d){d.classList.add('on');setTimeout(()=>d.classList.remove('on'),700)}
+  if(!silent){SFX.save();toast('💾 บันทึกแล้ว — ด่าน '+G.level+' · '+G.score+' คะแนน')}
+}
+function loadSave(st){try{return JSON.parse(localStorage.getItem(saveKey(st)))}catch(e){return null}}
+function deleteSave(){if(G.student)localStorage.removeItem(saveKey(G.student))}
+function manualSave(){saveGame(false)}
+function applySave(sv){
+  G.level=sv.level||1;G.score=sv.score||0;G.lives=sv.lives||3;G.unlocked=sv.unlocked||1;
+  G.bestLevel=sv.bestLevel||G.level;G.log=sv.log||[];G.qIndex=sv.qIndex||0;
+  G.usedW=(sv.usedW&&sv.usedW.length)?sv.usedW:shuffle(WORDS.map((_,i)=>i));
+  G.usedS=(sv.usedS&&sv.usedS.length)?sv.usedS:shuffle(SENTS.map((_,i)=>i));
+  G.startTime=sv.startTime||Date.now();
+  G._snap=sv.snap||null;
+}
+function resumeSaved(){
+  const sv=loadSave(G.student);if(!sv)return;
+  applySave(sv);SFX.click();
+  if(sv.snap&&sv.snap.level===sv.level){restoreBoard(sv.snap);toast('▶️ เล่นต่อจากจุดที่บันทึกไว้')}
+  else{startLevel(sv.level,true);toast('▶️ เริ่มด่าน '+sv.level+' ต่อจากที่บันทึกไว้')}
+}
+function restoreBoard(s){
+  unlockAudio();
+  G.level=s.level;G.bestLevel=Math.max(G.bestLevel,s.level);
+  G.maze=s.maze.map(r=>r.slice());
+  G.pellets=s.pellets.map(r=>r.map(v=>!!v));
+  G.orbs=s.orbs.map(o=>({r:o.r,c:o.c,type:o.type}));
+  G.power=s.power.map(p=>p.slice());
+  G.orbGot=s.orbGot;G.fright=s.fright||0;
+  G.player={x:s.player.x,y:s.player.y,dir:s.player.dir,next:null,speed:105,mouth:0,inv:1.5};
+  G.ghosts=s.ghosts.map(g=>({x:g.x,y:g.y,dir:g.dir,color:g.color,speed:g.speed,lastTile:''}));
+  G.playing=true;G.state='play';keepAwake();
+  updHUD();show('scGame');startMusic(G.level);
+  banner('▶️ เล่นต่อจากจุดเดิม<br><span style="font-size:.6em">เก็บไอเท็มแล้ว '+G.orbGot+'/'+ORB_COUNT+'</span>',1300);
+  lastT=performance.now();requestAnimationFrame(loop);
+}
+
+/* ---------- Login ---------- */
+function doLogin(){
+  unlockAudio();
+  const n=document.getElementById('inName').value.trim();
+  const c=document.getElementById('inClass').value.trim();
+  const no=document.getElementById('inNo').value.trim();
+  const room=document.getElementById('inRoom').value.trim().toUpperCase();
+  if(!n){alert('กรุณากรอกชื่อ–นามสกุล');return}
+  if(!c){alert('กรุณากรอกชั้น/ห้อง เช่น ป.5/1');return}
+  if(!no){alert('กรุณากรอกเลขที่');return}
+  if(G.mode==='live'&&!room){alert('กรุณากรอกรหัสห้องแข่งที่คุณครูกำหนด');return}
+  G.student={name:n,cls:c,no:no};
+  NET.mode=G.mode;NET.room=room;NET.uid=makeUid(G.student);
+  const sv=loadSave(G.student);
+  if(sv)applySave(sv);
+  else{G.level=1;G.score=0;G.lives=3;G.log=[];G.unlocked=1;G.bestLevel=1;
+    G.usedW=shuffle(WORDS.map((_,i)=>i));G.usedS=shuffle(SENTS.map((_,i)=>i));G.qIndex=0;G.startTime=Date.now();G._snap=null}
+  document.getElementById('menuHello').textContent=`สวัสดี ${n} · ${c} · เลขที่ ${no}`;
+  SFX.click();renderMenu();show('scMenu');startMusic('menu');
+  if(NET.mode==='live'){netPush(true);toast('🔥 เข้าห้องแข่ง '+room+' แล้ว')}
+}
+function logout(){stopMusic();G.playing=false;show('scLogin')}
+function renderMenu(){
+  const sv=loadSave(G.student);
+  document.getElementById('liveBadge').innerHTML = NET.mode==='live'
+   ? `<div style="background:#2a1024;border:2px solid #ff6b9d;border-radius:12px;padding:9px;text-align:center;margin-bottom:10px">
+      🔥 <b>โหมดแข่งสด</b> · ห้อง <b style="color:#ffd93d">${esc(NET.room)}</b>
+      <span class="note">${netBase()?' · เชื่อมต่อเซิร์ฟเวอร์':' · โหมดในเครื่อง'}</span></div>` : '';
+  document.getElementById('btnLiveMini').style.display=NET.mode==='live'?'inline-block':'none';
+  document.getElementById('resumeBox').innerHTML = sv
+   ? `<div style="background:#12351f;border:2px solid #6bcB77;border-radius:14px;padding:13px;text-align:center;margin-bottom:12px">
+      💾 <b>พบความคืบหน้าที่บันทึกไว้</b><br><span class="note">ด่าน ${sv.level} · ${sv.score} คะแนน · ${sv.lives} ชีวิต · ตอบแล้ว ${(sv.log||[]).length} ข้อ${sv.snap?' · เล่นต่อกลางด่านได้':''}<br>
+      บันทึกเมื่อ ${new Date(sv.savedAt).toLocaleString('th-TH')}</span><br>
+      <button class="btn green small" onclick="resumeSaved()">▶️ เล่นต่อ</button>
+      <button class="btn ghost small" onclick="newGame()">🆕 เริ่มใหม่</button></div>` : '';
+  document.getElementById('lvlGrid').innerHTML=THEMES.map(t=>{
+    const lock=t.id>G.unlocked,cleared=t.id<G.unlocked;
+    return `<div class="lvl ${lock?'lock':''}" style="background:${t.bg}" ${lock?'':`onclick="startLevel(${t.id})"`}>
+      ${cleared?'<span class="sv">✅</span>':(t.id===G.level&&sv?'<span class="sv">💾</span>':'')}
+      <span class="em">${lock?'🔒':t.em}</span>ด่าน ${t.id}<br><span style="font-size:13px;color:#bcd">${t.name}</span></div>`}).join('');
+}
+function newGame(){
+  if(!confirm('เริ่มเกมใหม่? ความคืบหน้าที่บันทึกไว้จะถูกลบ'))return;
+  deleteSave();G.level=1;G.score=0;G.lives=3;G.log=[];G.unlocked=1;G.bestLevel=1;G._snap=null;
+  G.usedW=shuffle(WORDS.map((_,i)=>i));G.usedS=shuffle(SENTS.map((_,i)=>i));G.qIndex=0;G.startTime=Date.now();
+  renderMenu();toast('🆕 เริ่มเกมใหม่แล้ว');
+}
+
+/* =====================================================================
+   8) เขาวงกต + เริ่มด่าน (ไอเท็มคำถาม 6 ชิ้นกระจายทั่วกระดาน)
+===================================================================== */
+const LEVEL_SEQ={
+ 1:['form','listen','sentence','write','speak','form'],
+ 2:['listen','form','write','sentence','speak','order'],
+ 3:['sentence','listen','order','speak','form','write'],
+ 4:['write','listen','speak','sentence','order','form'],
+ 5:['listen','speak','order','write','form','sentence']};
+const SKILL={form:'reading',sentence:'reading',listen:'listening',write:'writing',order:'writing',speak:'speaking'};
+const SKILL_EM={reading:'📖',listening:'🎧',writing:'✍️',speaking:'🎤'};
+const TAGTXT={reading:['อ่าน READING','rea'],listening:['ฟัง LISTENING','lis'],writing:['เขียน WRITING','wri'],speaking:['พูด SPEAKING','spk']};
+
+function genMaze(){
+  const g=Array.from({length:ROWS},()=>Array(COLS).fill(1));
+  const st=[[1,1]];g[1][1]=0;
+  while(st.length){
+    const [r,c]=st[st.length-1];
+    const ds=shuffle([[0,2],[0,-2],[2,0],[-2,0]]);let mv=false;
+    for(const [dr,dc] of ds){
+      const nr=r+dr,nc=c+dc;
+      if(nr>0&&nr<ROWS-1&&nc>0&&nc<COLS-1&&g[nr][nc]===1){
+        g[r+dr/2][c+dc/2]=0;g[nr][nc]=0;st.push([nr,nc]);mv=true;break}
+    }
+    if(!mv)st.pop();
+  }
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++)
+    if(g[r][c]===1&&(r%2===1||c%2===1)&&Math.random()<0.34)g[r][c]=0;
+  return g;
+}
+const isWall=(r,c)=>r<0||c<0||r>=ROWS||c>=COLS||G.maze[r][c]===1;
+const openCells=()=>{const a=[];for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++)if(!isWall(r,c))a.push([r,c]);return a};
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+
+function spreadCells(cells,n,minD){
+  const picked=[];
+  const pool=shuffle(cells);
+  let d=minD;
+  while(picked.length<n&&d>0){
+    for(const c of pool){
+      if(picked.length>=n)break;
+      if(picked.every(p=>dist(p,c)>=d)&&!picked.some(p=>p[0]===c[0]&&p[1]===c[1]))picked.push(c);
+    }
+    d-=1;
+  }
+  while(picked.length<n)picked.push(rnd(cells));
+  return picked.slice(0,n);
+}
+function startLevel(lv,resumed){
+  SFX.click();unlockAudio();
+  G.level=lv;G.bestLevel=Math.max(G.bestLevel,lv);G.state='play';G.playing=true;keepAwake();
+  if(!resumed)G.lives=3;
+  G.maze=genMaze();
+  const cells=openCells();
+  G.pellets=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  cells.forEach(([r,c])=>G.pellets[r][c]=true);
+  const start=cells.reduce((b,x)=>((ROWS-x[0])+x[1]<(ROWS-b[0])+b[1]?x:b),cells[0]);
+  G.player={x:(start[1]+.5)*TS,y:(start[0]+.5)*TS,dir:DIRS.R,next:null,speed:105,mouth:0,inv:0};
+  const far=cells.filter(c=>dist(c,start)>2.5);
+  const spots=spreadCells(far.length>=ORB_COUNT?far:cells,ORB_COUNT,5);
+  const types=shuffle(LEVEL_SEQ[lv]);
+  G.orbs=spots.map((s,i)=>({r:s[0],c:s[1],type:types[i]}));
+  const rest=cells.filter(c=>!G.orbs.some(o=>o.r===c[0]&&o.c===c[1]));
+  G.power=spreadCells(rest,4,4);
+  const nG=Math.min(2+lv,6);
+  const gs=spreadCells(cells.filter(c=>dist(c,start)>4),nG,3);
+  G.ghosts=gs.map((c,i)=>({x:(c[1]+.5)*TS,y:(c[0]+.5)*TS,dir:rnd(Object.values(DIRS)),
+    speed:64+lv*7,color:THEMES[lv-1].ghost[i%5],lastTile:''}));
+  G.fright=0;G.orbGot=0;
+  updHUD();show('scGame');startMusic(lv);saveGame(true);netPush(true);
+  banner(`${THEMES[lv-1].em} ด่าน ${lv}<br><span style="font-size:.7em">${THEMES[lv-1].name}</span>
+   <br><span style="font-size:.55em;color:#ffd93d">เก็บไอเท็มคำถาม ${ORB_COUNT} ชิ้น 🎧 🎤 📖 ✍️</span>`,1800);
+  lastT=performance.now();requestAnimationFrame(loop);
+}
+function banner(html,ms){
+  const b=document.getElementById('levelBanner');b.innerHTML=html;b.style.display='flex';
+  G.state='banner';
+  setTimeout(()=>{b.style.display='none';if(G.playing&&G.state==='banner'){G.state='play';lastT=performance.now()}},ms);
+}
+function updHUD(){
+  document.getElementById('hLvl').textContent=`${THEMES[G.level-1].em} ด่าน ${G.level}`;
+  document.getElementById('hScore').textContent='⭐ '+G.score;
+  document.getElementById('hOrb').textContent=`🔮 ${G.orbGot}/${ORB_COUNT}`;
+  document.getElementById('hLife').textContent='❤️'.repeat(Math.max(0,G.lives))||'💀';
+  const ok=G.log.filter(l=>l.correct).length;
+  document.getElementById('hAcc').textContent=`✅ ${ok}/${G.log.length}`;
+}
+
+/* =====================================================================
+   9) Game Loop
+===================================================================== */
+function canMove(e,d){const c=Math.floor(e.x/TS),r=Math.floor(e.y/TS);return !isWall(r+d.y,c+d.x)}
+function step(e,dt){
+  const c=Math.floor(e.x/TS),r=Math.floor(e.y/TS);
+  const ccx=(c+.5)*TS,ccy=(r+.5)*TS;
+  const al=Math.abs(e.x-ccx)<3&&Math.abs(e.y-ccy)<3;
+  if(al&&e.next&&canMove(e,e.next)){e.x=ccx;e.y=ccy;e.dir=e.next;e.next=null}
+  if(al&&!canMove(e,e.dir)){e.x=ccx;e.y=ccy;return}
+  e.x+=e.dir.x*e.speed*dt;e.y+=e.dir.y*e.speed*dt;
+  e.x=Math.max(TS*.5,Math.min(cv.width-TS*.5,e.x));
+  e.y=Math.max(TS*.5,Math.min(cv.height-TS*.5,e.y));
+}
+function ghostAI(g,dt){
+  const c=Math.floor(g.x/TS),r=Math.floor(g.y/TS),key=r+','+c;
+  const ccx=(c+.5)*TS,ccy=(r+.5)*TS;
+  if(Math.abs(g.x-ccx)<3&&Math.abs(g.y-ccy)<3&&g.lastTile!==key){
+    g.lastTile=key;g.x=ccx;g.y=ccy;
+    const opts=Object.values(DIRS).filter(d=>!isWall(r+d.y,c+d.x)&&!(d.x===-g.dir.x&&d.y===-g.dir.y));
+    const list=opts.length?opts:Object.values(DIRS).filter(d=>!isWall(r+d.y,c+d.x));
+    if(list.length){
+      const pr=Math.floor(G.player.y/TS),pc=Math.floor(G.player.x/TS);
+      if(Math.random()<.22)g.dir=rnd(list);
+      else{let best=list[0],bd=G.fright>0?-1e9:1e9;
+        for(const d of list){const dd=Math.hypot(r+d.y-pr,c+d.x-pc);
+          if(G.fright>0?dd>bd:dd<bd){bd=dd;best=d}}
+        g.dir=best}
+    }
+  }
+  const old=g.speed;g.speed=g.speed*(G.fright>0?.58:1);step(g,dt);g.speed=old;
+}
+let lastT=0;
+function loop(t){
+  if(!G.playing)return;
+  const dt=Math.min(.045,(t-lastT)/1000);lastT=t;
+  if(G.state==='play'){
+    step(G.player,dt);
+    G.player.mouth=(G.player.mouth+dt*11)%(Math.PI*1.1);
+    if(G.player.inv>0)G.player.inv-=dt;
+    if(G.fright>0)G.fright-=dt;
+    const pr=Math.floor(G.player.y/TS),pc=Math.floor(G.player.x/TS);
+    if(G.pellets[pr]&&G.pellets[pr][pc]){G.pellets[pr][pc]=false;G.score+=5;SFX.chomp();updHUD()}
+    const pi=G.power.findIndex(p=>p[0]===pr&&p[1]===pc);
+    if(pi>=0){G.power.splice(pi,1);G.fright=7;G.score+=30;SFX.power();updHUD()}
+    const oi=G.orbs.findIndex(o=>o.r===pr&&o.c===pc);
+    if(oi>=0){
+      const orb=G.orbs.splice(oi,1)[0];G.orbGot++;SFX.orb();updHUD();
+      askQuestion(orb.type,false);return requestAnimationFrame(loop);
+    }
+    G.ghosts.forEach(g=>ghostAI(g,dt));
+    for(const g of G.ghosts){
+      if(Math.hypot(g.x-G.player.x,g.y-G.player.y)<TS*.72){
+        if(G.fright>0){const cell=rnd(openCells());g.x=(cell[1]+.5)*TS;g.y=(cell[0]+.5)*TS;
+          G.score+=120;SFX.eatghost();updHUD()}
+        else if(G.player.inv<=0){loseLife();break}
+      }
+    }
+  }
+  draw();requestAnimationFrame(loop);
+}
+function loseLife(){
+  G.lives--;SFX.die();buzz(180);updHUD();saveGame(true);netPush(true);
+  if(G.lives<=0){endGame(false);return}
+  banner('💥 ระวังผีนะ!<br><span style="font-size:.6em">เหลือ '+G.lives+' ชีวิต</span>',1400);
+  const cells=openCells();
+  const s=cells.reduce((b,x)=>((ROWS-x[0])+x[1]<(ROWS-b[0])+b[1]?x:b),cells[0]);
+  G.player.x=(s[1]+.5)*TS;G.player.y=(s[0]+.5)*TS;G.player.dir=DIRS.R;G.player.next=null;G.player.inv=2.4;
+  const gs=spreadCells(cells.filter(c=>dist(c,s)>4),G.ghosts.length,3);
+  G.ghosts.forEach((g,i)=>{const c=gs[i]||rnd(cells);g.x=(c[1]+.5)*TS;g.y=(c[0]+.5)*TS;g.lastTile=''});
+}
+function draw(){
+  const T=THEMES[G.level-1];
+  cx.fillStyle=T.bg;cx.fillRect(0,0,cv.width,cv.height);
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(G.maze[r][c]===1){
+      const x=c*TS,y=r*TS;
+      const gr=cx.createLinearGradient(x,y,x,y+TS);
+      gr.addColorStop(0,T.wall);gr.addColorStop(1,T.wall2);
+      cx.fillStyle=gr;cx.beginPath();
+      if(cx.roundRect)cx.roundRect(x+1.5,y+1.5,TS-3,TS-3,6);else cx.rect(x+1.5,y+1.5,TS-3,TS-3);
+      cx.fill();
+    }else if(G.pellets[r][c]){
+      cx.fillStyle=T.dot;cx.beginPath();cx.arc(c*TS+TS/2,r*TS+TS/2,2.6,0,7);cx.fill();
+    }
+  }
+  const pulse=1+Math.sin(Date.now()/180)*.22;
+  cx.textAlign='center';cx.textBaseline='middle';
+  G.power.forEach(([r,c])=>{cx.font=(15*pulse)+'px serif';cx.fillText('⭐',c*TS+TS/2,r*TS+TS/2)});
+  G.orbs.forEach(o=>{
+    cx.save();cx.shadowColor='#ffd93d';cx.shadowBlur=15;
+    cx.beginPath();cx.fillStyle='rgba(255,217,61,.18)';cx.arc(o.c*TS+TS/2,o.r*TS+TS/2,TS*.46*pulse,0,7);cx.fill();
+    cx.font=(17*pulse)+'px serif';cx.fillText(SKILL_EM[SKILL[o.type]],o.c*TS+TS/2,o.r*TS+TS/2);
+    cx.restore();
+  });
+  G.ghosts.forEach(g=>{
+    const fr=G.fright>0;const col=fr?((G.fright<2&&Math.floor(Date.now()/180)%2)?'#fff':'#3b5bdb'):g.color;
+    const x=g.x,y=g.y,R=TS*.42;
+    cx.fillStyle=col;cx.beginPath();
+    cx.arc(x,y-2,R,Math.PI,0);cx.lineTo(x+R,y+R-2);
+    for(let i=0;i<3;i++){cx.lineTo(x+R-(R*2/3)*(i+.5),y+R-6);cx.lineTo(x+R-(R*2/3)*(i+1),y+R-2)}
+    cx.closePath();cx.fill();
+    cx.fillStyle='#fff';cx.beginPath();cx.arc(x-5,y-4,3.4,0,7);cx.arc(x+5,y-4,3.4,0,7);cx.fill();
+    cx.fillStyle=fr?'#fff':'#123';cx.beginPath();
+    cx.arc(x-5+g.dir.x*1.6,y-4+g.dir.y*1.6,1.7,0,7);cx.arc(x+5+g.dir.x*1.6,y-4+g.dir.y*1.6,1.7,0,7);cx.fill();
+  });
+  const p=G.player,ang=Math.abs(Math.sin(p.mouth))*.72,base=Math.atan2(p.dir.y,p.dir.x);
+  if(!(p.inv>0&&Math.floor(Date.now()/110)%2)){
+    cx.save();cx.shadowColor='#ffd93d';cx.shadowBlur=16;
+    cx.fillStyle='#ffd93d';cx.beginPath();
+    cx.moveTo(p.x,p.y);cx.arc(p.x,p.y,TS*.44,base+ang,base-ang);cx.closePath();cx.fill();cx.restore();
+  }
+  if(G.fright>0){cx.fillStyle='rgba(255,255,255,.85)';cx.font='bold 13px sans-serif';cx.textAlign='left';
+    cx.fillText('POWER '+G.fright.toFixed(1)+'s',8,14)}
+}
+/* ---------- ควบคุม ---------- */
+document.addEventListener('keydown',e=>{
+  const m={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R',w:'U',s:'D',a:'L',d:'R',W:'U',S:'D',A:'L',D:'R'};
+  if(m[e.key]&&G.playing&&G.player&&G.state==='play'){e.preventDefault();G.player.next=DIRS[m[e.key]]}
+  if(e.key==='Escape'&&G.playing&&G.state==='play')pauseMenu();
+});
+document.querySelectorAll('#pad button').forEach(b=>{
+  const set=ev=>{ev.preventDefault();if(G.playing&&G.player){G.player.next=DIRS[b.dataset.d];SFX.chomp()}};
+  b.addEventListener('touchstart',set,{passive:false});
+  b.addEventListener('mousedown',set);
+});
+/* ---------- ปัดนิ้วได้ทั้งหน้าจอเกม ---------- */
+let swX=0,swY=0,swOn=false;
+const gameScr=document.getElementById('scGame');
+gameScr.addEventListener('touchstart',e=>{
+  swOn=!e.target.closest('#hud,#pad');
+  if(swOn){swX=e.touches[0].clientX;swY=e.touches[0].clientY}
+},{passive:true});
+gameScr.addEventListener('touchmove',e=>{
+  if(e.cancelable)e.preventDefault();
+  if(!swOn||!G.playing||!G.player||G.state!=='play')return;
+  const t=e.touches[0],dx=t.clientX-swX,dy=t.clientY-swY;
+  if(Math.abs(dx)<24&&Math.abs(dy)<24)return;
+  G.player.next=Math.abs(dx)>Math.abs(dy)?(dx>0?DIRS.R:DIRS.L):(dy>0?DIRS.D:DIRS.U);
+  swX=t.clientX;swY=t.clientY;
+},{passive:false});
+/* ---------- Pause ---------- */
+async function pauseMenu(){
+  if(!G.playing)return;
+  G.state='paused';stopMusic();
+  document.getElementById('pInfo').innerHTML=
+   `ด่าน ${G.level} · ⭐ ${G.score} คะแนน · ❤️ ${G.lives} ชีวิต<br>เก็บไอเท็มแล้ว ${G.orbGot}/${ORB_COUNT} · ตอบถูก ${G.log.filter(l=>l.correct).length}/${G.log.length} ข้อ`;
+  document.getElementById('mP').classList.add('on');saveGame(true);
+  const box=document.getElementById('pLive');box.innerHTML='';
+  if(NET.mode==='live'){
+    const data=await netList(NET.room);
+    const arr=Object.entries(data).map(([k,v])=>({k,...v})).sort((a,b)=>b.score-a.score);
+    const rank=arr.findIndex(x=>x.k===NET.uid)+1;
+    box.innerHTML=`<div style="background:#0e1a30;border:2px solid #ff6b9d;border-radius:12px;padding:10px;margin-top:10px">
+      🔥 ห้อง <b>${esc(NET.room)}</b> · อันดับของคุณ <b style="color:#ffd93d">${rank||'-'}</b> จาก ${arr.length} คน</div>`;
+  }
+}
+function resumeGame(){
+  document.getElementById('mP').classList.remove('on');
+  if(G.playing){G.state='play';lastT=performance.now();startMusic(G.level)}
+}
+
+/* =====================================================================
+   10) ระบบคำถาม 4 ทักษะ
+===================================================================== */
+const QTIME=120,BTIME=60;
+function nextWord(){if(!G.usedW.length)G.usedW=shuffle(WORDS.map((_,i)=>i));return WORDS[G.usedW.pop()]}
+function nextSent(){
+  if(!G.usedS.length)G.usedS=shuffle(SENTS.map((_,i)=>i));
+  const s=SENTS[G.usedS.pop()];
+  return{s,w:WORDS.find(x=>x.w===s.a)};
+}
+function makeChoices(W){
+  const b=W.w,set=new Set([W.c]);
+  if(W.rule==='more'){set.add(b+'er');set.add('more '+b+'er');set.add(b+'est')}
+  else if(W.rule==='double'){set.add('more '+b);set.add(b+'er');set.add(b+'est')}
+  else if(W.rule==='y'){set.add('more '+b);set.add(b+'er');set.add(b.slice(0,-1)+'iest')}
+  else if(W.rule==='e'){set.add('more '+b);set.add(b+'er');set.add(b+'st')}
+  else{set.add('more '+b);set.add(b+'est');set.add(b+b.slice(-1)+'er')}
+  let arr=[...set];
+  if(arr.length>4)arr=arr.filter(x=>x!==W.c).slice(0,3).concat(W.c);
+  return shuffle(arr);
+}
+let QT=null,QSecs=0,QCur=null,QAnswered=false,QLimit=QTIME;
+function askQuestion(type,isBonus,onDone){
+  G.state=isBonus?'bonus':'question';QAnswered=false;stopMusic();
+  if(isBonus)startMusic('boss');
+  const q=buildQ(type);QCur=q;QCur.onDone=onDone;QCur.bonus=!!isBonus;
+  const [txt,cls]=TAGTXT[SKILL[type]];
+  document.getElementById('qTag').textContent=txt;
+  document.getElementById('qTag').className='qtag '+cls;
+  document.getElementById('qNo').textContent=(isBonus?'🐲 บอส · คะแนน ×3 · ':'')+`ข้อที่ ${++G.qIndex} · ด่าน ${G.level}`;
+  document.getElementById('qBody').innerHTML=q.html;
+  document.getElementById('qFb').className='fb';
+  document.getElementById('qFb').innerHTML='';
+  document.getElementById('qNext').style.display='none';
+  document.getElementById('qBox').classList.toggle('boss',!!isBonus);
+  document.getElementById('bossBox').style.display=isBonus?'block':'none';
+  document.getElementById('mQ').classList.add('on');
+  if(q.after)q.after();
+  QLimit=isBonus?BTIME:QTIME;QSecs=QLimit;tickQ();QT=setInterval(tickQ,1000);
+}
+function tickQ(){
+  const m=String(Math.floor(QSecs/60)).padStart(2,'0'),s=String(QSecs%60).padStart(2,'0');
+  document.getElementById('qClock').textContent=m+':'+s;
+  document.getElementById('timerFill').style.width=(QSecs/QLimit*100)+'%';
+  document.getElementById('timerFill').style.background=QSecs<20?'linear-gradient(90deg,#ff6b6b,#ffa94d)':'linear-gradient(90deg,#6bcB77,#ffd93d)';
+  if(QSecs<=10&&QSecs>0)SFX.tick();
+  if(QSecs<=0){clearInterval(QT);if(!QAnswered)submit(null)}
+  QSecs--;
+}
+function buildQ(type){
+  if(type==='form'){
+    const W=nextWord(),ch=makeChoices(W);
+    return{type,W,ans:W.c,
+      html:`<div class="qth">เลือกรูปขั้นกว่า (comparative) ที่ถูกต้อง</div>
+       <div class="qtext">${W.w} <span style="color:#9fb3d4;font-size:.75em">(${W.th})</span> → ?</div>
+       <div class="center" style="margin-bottom:8px"><button class="btn ghost small" onclick="speak('${W.w}')">🔊 ฟังคำอ่าน</button></div>
+       <div class="choices">${ch.map(c=>`<button class="choice" onclick="submit(this.textContent,this)">${c}</button>`).join('')}</div>`};
+  }
+  if(type==='sentence'){
+    const {s,w:W}=nextSent(),ch=makeChoices(W);
+    return{type,W,ans:W.c,sent:s,
+      html:`<div class="qth">เติมคำในช่องว่างให้ถูกต้อง</div>
+       <div class="qtext">${s.s.replace('___','<span style="color:#ffd93d">______</span>')}</div>
+       <div class="qth">💡 คำที่กำหนดให้: <b style="color:#8fd3ff">${W.w}</b> (${W.th})<br>${s.th}</div>
+       <div class="choices">${ch.map(c=>`<button class="choice" onclick="submit(this.textContent,this)">${c}</button>`).join('')}</div>`};
+  }
+  if(type==='listen'){
+    const {s,w:W}=nextSent(),full=s.s.replace('___',W.c),ch=makeChoices(W);
+    return{type,W,ans:W.c,sent:s,
+      html:`<div class="qth">ฟังประโยคแล้วเลือกคำที่ได้ยิน (กดฟังซ้ำได้)</div>
+       <div class="center" style="font-size:48px;margin:4px">🎧</div>
+       <div class="center"><button class="btn blue" onclick="speak(this.dataset.t)" data-t="${full}">▶️ ฟังประโยค</button>
+       <button class="btn ghost small" onclick="speak(this.dataset.t,0.6)" data-t="${full}">🐢 ฟังช้า ๆ</button></div>
+       <div class="choices" style="margin-top:13px">${ch.map(c=>`<button class="choice" onclick="submit(this.textContent,this)">${c}</button>`).join('')}</div>`,
+      after:()=>setTimeout(()=>speak(full),450)};
+  }
+  if(type==='write'){
+    const W=nextWord();
+    return{type,W,ans:W.c,
+      html:`<div class="qth">พิมพ์รูปขั้นกว่าให้ถูกต้อง (สะกดให้ครบ)</div>
+       <div class="qtext">${W.w} <span style="color:#9fb3d4;font-size:.75em">(${W.th})</span></div>
+       <div class="center" style="margin-bottom:8px"><button class="btn ghost small" onclick="speak('${W.w}')">🔊 ฟังคำอ่าน</button></div>
+       <input id="wIn" placeholder="พิมพ์คำตอบที่นี่..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" onfocus="setTimeout(()=>this.scrollIntoView({block:'center',behavior:'smooth'}),300)"
+        onkeydown="if(event.key==='Enter')submit(document.getElementById('wIn').value)">
+       <div class="center" style="margin-top:12px"><button class="btn green" onclick="submit(document.getElementById('wIn').value)">✔️ ส่งคำตอบ</button></div>`,
+      after:()=>setTimeout(()=>{const i=document.getElementById('wIn');if(i)i.focus()},130)};
+  }
+  if(type==='order'){
+    const {s,w:W}=nextSent(),full=s.s.replace('___',W.c).replace(/\.$/,'');
+    const words=full.split(' ');ordSel=[];
+    return{type,W,ans:full+'.',sent:s,
+      html:`<div class="qth">เรียงคำให้เป็นประโยคที่ถูกต้อง (แตะคำตามลำดับ)</div>
+       <div id="orderLine"><span style="color:#5a7">แตะคำด้านล่าง...</span></div>
+       <div class="wordbank" id="bank">${shuffle(words).map(w=>`<div class="wchip" onclick="pickWord(this)">${w}</div>`).join('')}</div>
+       <div class="qth">💡 ความหมาย: ${s.th}</div>
+       <div class="center"><button class="btn ghost small" onclick="resetOrder()">↩️ เริ่มใหม่</button>
+       <button class="btn green" onclick="submit(orderText())">✔️ ส่งคำตอบ</button></div>`};
+  }
+  /* speak — AI ฟังและตรวจเสียงอ่านอัตโนมัติ */
+  const {s,w:W}=nextSent(),full=s.s.replace('___',W.c);
+  const sup=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  SPK.tries=0;SPK.busy=false;
+  return{type,W,ans:full,speakTarget:full,
+    html:`<div class="qth">อ่านออกเสียงประโยคนี้ให้ชัดเจน — AI จะฟังและตรวจให้</div>
+     <div class="qtext">${full}</div><div class="qth">${s.th}</div>
+     <div class="center"><button class="btn blue small" onclick="speak(this.dataset.t)" data-t="${full}">🔊 ฟังตัวอย่าง</button>
+     <button class="btn ghost small" onclick="speak(this.dataset.t,0.6)" data-t="${full}">🐢 ฟังช้า ๆ</button></div>
+     <div class="center">${sup
+       ?`<button class="mic" id="micBtn" onclick="recSpeech()">🎤</button>
+         <div class="qth" id="recTxt">แตะไมโครโฟนแล้วพูดทั้งประโยค (พูดได้ ${SPK.MAX} ครั้ง)</div>`
+       :`<div class="qth" style="color:#ffd93d">⚠️ อุปกรณ์/เบราว์เซอร์นี้ไม่รองรับการตรวจเสียง<br>ให้ใช้ Chrome, Edge หรือ Safari — หรือกดข้ามข้อนี้ (ไม่ได้คะแนน)</div>
+         <button class="btn ghost small" onclick="submit('__SKIP__')">⏭️ ข้ามข้อนี้</button>`}</div>`};
+}
+let ordSel=[];
+function pickWord(el){SFX.click();el.classList.add('used');ordSel.push(el.textContent);renderOrder()}
+function resetOrder(){ordSel=[];document.querySelectorAll('#bank .wchip').forEach(e=>e.classList.remove('used'));renderOrder()}
+function renderOrder(){
+  const l=document.getElementById('orderLine');if(!l)return;
+  l.innerHTML=ordSel.length?ordSel.map(w=>`<span class="wchip" style="cursor:default">${w}</span>`).join(''):'<span style="color:#5a7">แตะคำด้านล่าง...</span>';
+}
+function orderText(){return ordSel.join(' ')+'.'}
+
+const norm=s=>(s||'').toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();
+
+/* ===== ตรวจเสียงอ่านอัตโนมัติ ===== */
+const SPK={tries:0,rec:null,busy:false,MAX:3};
+const SKIPHTML='<br><button class="btn ghost small" onclick="submit(\'__SKIP__\')">⏭️ ข้ามข้อนี้ (ไม่ได้คะแนน)</button>';
+function lev(a,b){const m=a.length,n=b.length,d=[];
+  for(let i=0;i<=m;i++)d[i]=[i];for(let j=1;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n]}
+const wordsOf=s=>norm(s).split(' ').filter(Boolean);
+const fuzzyHas=(list,w)=>list.some(x=>x===w||(w.length>=4&&x.length>=4&&lev(x,w)<=1));
+const exactHas=(list,w)=>list.some(x=>x===w||(w.length>=7&&lev(x,w)<=1));
+function scoreSpeech(heard,target,W){
+  const tw=wordsOf(target),hw=wordsOf(heard);
+  const hit=tw.filter(w=>fuzzyHas(hw,w)).length;
+  const ratio=hit/Math.max(1,tw.length);
+  const keyOk=wordsOf(W.c).every(w=>exactHas(hw,w));   // คำเปรียบเทียบต้องถูกเป๊ะ
+  return{ratio,keyOk,ok:ratio>=.75&&keyOk};
+}
+function stopRec(){try{if(SPK.rec)SPK.rec.abort()}catch(e){}SPK.rec=null;SPK.busy=false}
+function recSpeech(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR||QAnswered||SPK.busy)return;
+  clearTimeout(speak._t);try{speechSynthesis.cancel()}catch(e){}            // กันไมค์จับเสียงตัวอย่าง
+  const btn=document.getElementById('micBtn'),tx=document.getElementById('recTxt');
+  const r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;r.continuous=false;
+  SPK.rec=r;SPK.busy=true;let got=false,failed=false;
+  btn.classList.add('rec');tx.innerHTML='🔴 กำลังฟัง... พูดได้เลย!';
+  r.onresult=e=>{
+    got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript);
+    let best=null;
+    alts.forEach(t=>{const s=scoreSpeech(t,QCur.speakTarget,QCur.W);
+      if(!best||(s.ok&&!best.s.ok)||(s.ok===best.s.ok&&s.ratio>best.s.ratio))best={t,s}});
+    SPK.busy=false;btn.classList.remove('rec');
+    if(best.s.ok){tx.innerHTML='✅ AI ได้ยินว่า: "'+esc(best.t)+'"';submit(best.t);return}
+    SPK.tries++;
+    if(SPK.tries>=SPK.MAX){submit(best.t);return}
+    SFX.wrong();
+    tx.innerHTML='🤔 AI ได้ยินว่า: "<b>'+esc(best.t)+'</b>"<br>ยังไม่ตรง ลองฟังตัวอย่างแล้วพูดอีกครั้งนะ (เหลือ '+(SPK.MAX-SPK.tries)+' ครั้ง)';
+  };
+  r.onerror=e=>{
+    failed=true;SPK.busy=false;btn.classList.remove('rec');
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      tx.innerHTML='🚫 ยังใช้ไมโครโฟนไม่ได้ — กดอนุญาตไมค์ให้เบราว์เซอร์<br>และเปิด Siri / การป้อนข้อความด้วยเสียง (Dictation) ในตั้งค่าเครื่อง แล้วแตะ 🎤 ใหม่'+SKIPHTML;
+    }else if(e.error==='no-speech'){tx.textContent='🔇 ไม่ได้ยินเสียง ลองพูดให้ดังขึ้นแล้วแตะ 🎤 อีกครั้ง'}
+    else if(e.error==='network'){tx.innerHTML='🌐 ต้องต่ออินเทอร์เน็ตเพื่อตรวจเสียง ลองใหม่อีกครั้ง'+SKIPHTML}
+    else if(e.error!=='aborted'){tx.textContent='❌ ตรวจเสียงไม่สำเร็จ ลองแตะ 🎤 ใหม่'}
+  };
+  r.onend=()=>{btn.classList.remove('rec');SPK.busy=false;
+    if(!got&&!failed&&!QAnswered)tx.textContent='🔇 ไม่ได้ยินเสียง ลองแตะ 🎤 อีกครั้ง'};
+  try{r.start()}catch(e){SPK.busy=false;btn.classList.remove('rec')}
+}
+
+function submit(val,el){
+  if(QAnswered)return;QAnswered=true;clearInterval(QT);stopRec();
+  const q=QCur;let ok=false,note='',skipped=false;
+  if(val===null){note='⏰ หมดเวลา'}
+  else if(val==='__SKIP__'){skipped=true;note='อุปกรณ์ไม่รองรับการตรวจเสียง — ข้อนี้ไม่นับคะแนน'}
+  else if(q.type==='speak'){
+    const sc=scoreSpeech(val,q.speakTarget,q.W);ok=sc.ok;
+    note=`AI ได้ยินว่า: "${esc(val)}" · ออกเสียงตรงประมาณ ${Math.round(sc.ratio*100)}%`+
+         (!ok&&!sc.keyOk?` · คำสำคัญคือ "${q.W.c}"`:'');
+  }else ok=norm(val)===norm(q.ans);
+
+  let pts=0;
+  if(ok){
+    const base=['write','order','speak'].includes(q.type)?260:200;
+    if(q.bonus){BOSS.combo++;pts=Math.round(base*3*(1+(BOSS.combo-1)*.5))}
+    else pts=base;
+  }else if(q.bonus&&!skipped)BOSS.combo=0;
+  G.score+=pts;
+  if(!skipped)G.log.push({lv:G.level,type:q.type,skill:SKILL[q.type],bonus:!!q.bonus,word:q.W.w,rule:q.W.rule,
+    question:q.sent?q.sent.s:q.W.w,correctAns:q.ans,studentAns:val===null?'(ไม่ตอบ)':val,
+    correct:ok,time:QLimit-QSecs-1,pts});
+  if(!skipped)(ok?SFX.correct():SFX.wrong());
+  if(q.bonus&&!skipped)bossReact(ok);
+  document.querySelectorAll('.choice').forEach(b=>{
+    if(norm(b.textContent)===norm(q.ans))b.classList.add('ok');
+    else if(el&&b===el)b.classList.add('no');
+    b.onclick=null;
+  });
+  const fb=document.getElementById('qFb');
+  fb.className='fb '+(ok?'ok':'no');
+  fb.innerHTML=`<b style="font-size:17px">${skipped?'⚠️ ข้ามข้อนี้ (ไม่ได้คะแนน)':ok?'🎉 เก่งมาก! ตอบถูกต้อง':'❌ ยังไม่ถูก ลองทบทวนอีกครั้งนะ'}</b><br>
+    ✅ คำตอบที่ถูกต้อง: <b style="color:#ffd93d">${q.ans}</b><br>
+    📖 หลักการ: ${RULE_TIP[q.W.rule]}<br>
+    🔤 <b>${q.W.w}</b> (${q.W.th}) → <b>${q.W.c}</b><br>
+    ${note?'ℹ️ '+note+'<br>':''}⭐ ได้รับ ${pts} คะแนน${q.bonus&&ok&&BOSS.combo>1?` <span style="color:#ffd93d">(COMBO ×${BOSS.combo})</span>`:''}`;
+  speak(q.W.c);
+  document.getElementById('qNext').style.display='inline-block';
+  updHUD();saveGame(true);netPush(true);
+}
+function closeQuestion(){
+  document.getElementById('mQ').classList.remove('on');ordSel=[];
+  if(QCur&&QCur.onDone)QCur.onDone();else afterOrb();
+}
+function afterOrb(){
+  if(G.orbGot>=ORB_COUNT){startBoss();return}
+  G.state='play';startMusic(G.level);lastT=performance.now();
+}
+
+/* =====================================================================
+   11) 🐲 ด่านโบนัส BOSS BATTLE
+===================================================================== */
+const BOSS={hp:4,max:4,combo:0,idx:0,seq:[]};
+function bossHtmlUpdate(){
+  const pct=Math.max(0,BOSS.hp/BOSS.max*100);
+  document.getElementById('bossHp').style.width=pct+'%';
+  document.getElementById('bossHpTxt').textContent=`พลังชีวิตบอส ${Math.max(0,BOSS.hp)} / ${BOSS.max}`;
+  document.getElementById('bossCombo').innerHTML=BOSS.combo>1?`🔥 COMBO ×${BOSS.combo} — คะแนนทวีคูณ!`:'ตอบถูกติดต่อกันเพื่อเพิ่ม COMBO';
+}
+function bossReact(ok){
+  const e=document.getElementById('bossEmo'),box=document.getElementById('qBox');
+  if(ok){
+    BOSS.hp--;SFX.slash();if(BOSS.combo>1)setTimeout(()=>SFX.combo(BOSS.combo),260);
+    e.classList.remove('hit');void e.offsetWidth;e.classList.add('hit');
+  }else{
+    SFX.roar();e.classList.remove('atk');void e.offsetWidth;e.classList.add('atk');
+    box.classList.remove('flashno');void box.offsetWidth;box.classList.add('flashno');
+  }
+  bossHtmlUpdate();
+}
+function startBoss(){
+  const T=THEMES[G.level-1];
+  BOSS.hp=BOSS.max=4;BOSS.combo=0;BOSS.idx=0;
+  BOSS.seq=[ 'listen','speak', rnd(['form','sentence']), rnd(['write','order']) ];
+  G.state='bonus';SFX.roar();
+  document.getElementById('bossEmo').textContent=T.boss;
+  document.getElementById('bossName').textContent=T.bossName;
+  bossHtmlUpdate();
+  banner(`${T.boss} <b>BOSS BATTLE!</b><br><span style="font-size:.58em">${T.bossName} ปรากฏตัว!<br>ตอบให้ถูก 4 ข้อ ครบ 4 ทักษะ เพื่อปราบบอส<br>⏱️ ข้อละ 60 วินาที · คะแนน ×3 · มีระบบ COMBO</span>`,2600);
+  setTimeout(nextBoss,2650);
+}
+function nextBoss(){
+  if(BOSS.idx>=BOSS.seq.length||BOSS.hp<=0){finishBoss();return}
+  askQuestion(BOSS.seq[BOSS.idx++],true,()=>{
+    document.getElementById('mQ').classList.remove('on');ordSel=[];
+    setTimeout(nextBoss,300);
+  });
+}
+function finishBoss(){
+  const T=THEMES[G.level-1];
+  document.getElementById('qBox').classList.remove('boss');
+  document.getElementById('bossBox').style.display='none';
+  const win=BOSS.hp<=0;
+  if(win){G.score+=1000;SFX.victory()}else{G.score+=200;SFX.gameover()}
+  updHUD();
+  banner(win
+   ? `🏆 ปราบ ${T.bossName} สำเร็จ!<br><span style="font-size:.55em">โบนัสปราบบอส +1,000 คะแนน</span>`
+   : `💨 ${T.bossName} หนีไปได้!<br><span style="font-size:.55em">ได้คะแนนปลอบใจ +200 · ครั้งหน้าสู้ใหม่นะ</span>`,2200);
+  setTimeout(finishLevel,2250);
+}
+function finishLevel(){
+  SFX.levelup();G.score+=500;updHUD();
+  const cleared=G.level;
+  if(cleared<5){
+    G.unlocked=Math.max(G.unlocked,cleared+1);
+    G.level=cleared+1;G.state='idle';
+    saveGame(true);netPush(true);
+    banner(`✅ ผ่านด่าน ${cleared} แล้ว!<br><span style="font-size:.55em">โบนัสผ่านด่าน +500 คะแนน<br>💾 บันทึกความคืบหน้าอัตโนมัติ</span>`,2000);
+    setTimeout(()=>{
+      G.playing=false;renderMenu();show('scMenu');startMusic('menu');
+      toast(`🎉 ปลดล็อกด่าน ${G.level}: ${THEMES[G.level-1].name} ${THEMES[G.level-1].em}`);
+    },2050);
+  }else setTimeout(()=>endGame(true),900);
+}
+function quitGame(){
+  if(!confirm('ออกจากเกมและบันทึกผลการเรียนรู้?'))return;
+  document.getElementById('mP').classList.remove('on');endGame(false);
+}
+
+/* =====================================================================
+   12) รายงานผล
+===================================================================== */
+function makeRecord(win){
+  const L=G.log,tot=L.length,ok=L.filter(x=>x.correct).length;
+  return{date:new Date().toLocaleString('th-TH'),ts:Date.now(),
+   name:G.student.name,cls:G.student.cls,no:G.student.no,mode:G.mode,room:NET.room||'',
+   level:G.bestLevel,score:G.score,total:tot,correct:ok,pct:tot?Math.round(ok/tot*100):0,
+   skill:skillStat(L),gram:gramStat(L),lvStat:lvStat(L),detail:L,win:!!win,
+   minutes:Math.max(1,Math.round((Date.now()-G.startTime)/60000))};
+}
+function skillStat(L){const o={listening:{c:0,t:0},speaking:{c:0,t:0},reading:{c:0,t:0},writing:{c:0,t:0}};
+  L.forEach(x=>{o[x.skill].t++;if(x.correct)o[x.skill].c++});return o}
+function gramStat(L){const o={};L.forEach(x=>{o[x.rule]=o[x.rule]||{c:0,t:0};o[x.rule].t++;if(x.correct)o[x.rule].c++});return o}
+function lvStat(L){const o={};L.forEach(x=>{o[x.lv]=o[x.lv]||{c:0,t:0};o[x.lv].t++;if(x.correct)o[x.lv].c++});return o}
+function grade(p){return p>=80?'ดีเยี่ยม (4)':p>=70?'ดี (3)':p>=60?'พอใช้ (2)':p>=50?'ผ่าน (1)':'ควรปรับปรุง (0)'}
+const loadDB=()=>{try{return JSON.parse(localStorage.getItem('cqDB'))||[]}catch(e){return[]}};
+
+function renderResult(rec,live){
+  document.getElementById('rsTitle').textContent=live?'📊 รายงานผลระหว่างเล่น':(rec.win?'🏆 ยอดเยี่ยม! ผ่านครบ 5 ด่าน':'🏁 สรุปผลการเรียนรู้');
+  document.getElementById('rsWho').textContent=`${rec.name} · ${rec.cls} · เลขที่ ${rec.no} · ${rec.date}`+(rec.room?` · ห้องแข่ง ${rec.room}`:'');
+  document.getElementById('rsStat').innerHTML=`
+    <div class="st"><b>${rec.score}</b><span>คะแนนรวม</span></div>
+    <div class="st"><b>${rec.correct}/${rec.total}</b><span>ตอบถูก</span></div>
+    <div class="st"><b>${rec.pct}%</b><span>ความแม่นยำ</span></div>
+    <div class="st"><b>${rec.level}</b><span>ด่านสูงสุด</span></div>
+    <div class="st"><b style="font-size:15px">${grade(rec.pct)}</b><span>ระดับผลการเรียนรู้</span></div>`;
+  const sk={listening:'👂 การฟัง',speaking:'🗣️ การพูด',reading:'📖 การอ่าน',writing:'✍️ การเขียน'};
+  document.getElementById('rsSkill').innerHTML=Object.keys(sk).map(k=>{
+    const s=rec.skill[k],p=s.t?Math.round(s.c/s.t*100):0;
+    return `<div style="margin:9px 0"><b>${sk[k]}</b> — ${s.c}/${s.t} (${s.t?p+'%':'ยังไม่ได้ทำ'}) ${s.t?`<span class="badge ${p>=80?'b-g':p>=50?'b-y':'b-r'}">${p>=80?'ดีมาก':p>=50?'พอใช้':'ควรฝึกเพิ่ม'}</span>`:''}<div class="bar"><i style="width:${p}%"></i></div></div>`}).join('');
+  const gl={er:'เติม -er',double:'ซ้ำตัวสะกด + -er',y:'y → i + -er',e:'ลงท้าย e เติม -r',more:'ใช้ more นำหน้า'};
+  document.getElementById('rsGram').innerHTML=Object.keys(gl).map(k=>{
+    const s=rec.gram[k]||{c:0,t:0},p=s.t?Math.round(s.c/s.t*100):0;
+    return `<div style="margin:9px 0"><b>${gl[k]}</b> — ${s.c}/${s.t} (${s.t?p+'%':'ยังไม่ได้ทำ'})<div class="bar"><i style="width:${p}%"></i></div></div>`}).join('');
+  document.getElementById('rsLevel').innerHTML=THEMES.map(t=>{
+    const s=rec.lvStat[t.id]||{c:0,t:0},p=s.t?Math.round(s.c/s.t*100):0;
+    return `<div style="margin:8px 0"><b>${t.em} ด่าน ${t.id} ${t.name}</b> — ${s.c}/${s.t} (${s.t?p+'%':'-'})<div class="bar"><i style="width:${p}%"></i></div></div>`}).join('');
+  const bad=[...new Set(rec.detail.filter(x=>!x.correct).map(x=>x.word))];
+  document.getElementById('rsReview').innerHTML=bad.length
+    ? bad.map(w=>{const W=WORDS.find(x=>x.w===w);return `• <b>${W.w}</b> (${W.th}) → <b style="color:#ffd93d">${W.c}</b> — ${RULE_TIP[W.rule]}`}).join('<br>')
+    : '🎉 ไม่มีคำที่ต้องทบทวน เก่งมาก!';
+  window.__rec=rec;
+  document.getElementById('rsBtns').innerHTML= live
+   ? `<button class="btn green" onclick="backToGame()">▶️ กลับไปเล่นต่อ</button>
+      <button class="btn blue small" onclick="printStudent()">🖨️ พิมพ์รายงาน</button>
+      <button class="btn small" onclick="exportOne()">📤 บันทึก CSV</button>
+      <button class="btn purple small" onclick="openLB()">🏆 กระดานผู้นำ</button>`
+   : `<button class="btn" onclick="renderMenu();show('scMenu');startMusic('menu')">🔁 เล่นอีกครั้ง</button>
+      <button class="btn purple" onclick="openLB()">🏆 กระดานผู้นำ</button>
+      <button class="btn blue small" onclick="printStudent()">🖨️ พิมพ์รายงาน</button>
+      <button class="btn green small" onclick="exportOne()">📤 บันทึกผลของฉัน (CSV)</button>`;
+  show('scResult');
+}
+function liveReport(){
+  if(!G.student){alert('กรุณาเข้าสู่ระบบก่อน');return}
+  document.getElementById('mP').classList.remove('on');
+  if(G.playing){G.state='paused';stopMusic()}
+  prevScreen=G.playing?'scGame':'scMenu';
+  renderResult(makeRecord(false),true);
+}
+function backToGame(){
+  if(G.playing){show('scGame');G.state='play';lastT=performance.now();startMusic(G.level);setTimeout(fitCanvas,30)}
+  else{renderMenu();show('scMenu');startMusic('menu')}
+}
+function endGame(win){
+  G.playing=false;G.state='end';stopMusic();
+  win?SFX.victory():SFX.gameover();
+  const rec=makeRecord(win);
+  const db=loadDB();db.push(rec);
+  try{localStorage.setItem('cqDB',JSON.stringify(db))}catch(e){}
+  if(win)deleteSave();else saveGame(true);
+  netPush(true);
+  renderResult(rec,false);
+}
+
+/* =====================================================================
+   13) 🏆 Leaderboard ในเครื่อง
+===================================================================== */
+let lbFilter='ALL';
+function openLB(){
+  SFX.click();document.getElementById('mP').classList.remove('on');
+  if(G.playing&&G.state==='play'){G.state='paused';stopMusic()}
+  const cur=document.querySelector('.screen.on');
+  prevScreen=cur?cur.id:'scMenu';
+  lbFilter=G.student?G.student.cls:'ALL';
+  renderLB();show('scLB');
+}
+function backFromLB(){
+  if(prevScreen==='scGame'&&G.playing)backToGame();
+  else if(prevScreen==='scResult')show('scResult');
+  else if(prevScreen==='scTeacher')show('scTeacher');
+  else if(G.student){renderMenu();show('scMenu');startMusic('menu')}
+  else show('scLogin');
+}
+function lbData(cls){
+  const db=loadDB(),map={};
+  db.forEach(r=>{
+    if(cls&&cls!=='ALL'&&r.cls!==cls)return;
+    const k=r.name+'|'+r.cls+'|'+r.no;
+    if(!map[k])map[k]={name:r.name,cls:r.cls,no:r.no,best:0,plays:0,lvl:0,totQ:0,totOk:0};
+    const m=map[k];m.plays++;m.totQ+=r.total;m.totOk+=r.correct;
+    if(r.score>m.best)m.best=r.score;
+    if(r.level>m.lvl)m.lvl=r.level;
+  });
+  return Object.values(map).map(m=>({...m,acc:m.totQ?Math.round(m.totOk/m.totQ*100):0}))
+   .sort((a,b)=>b.best-a.best||b.acc-a.acc);
+}
+function renderLB(){
+  const db=loadDB();
+  const classes=[...new Set(db.map(r=>r.cls))].sort();
+  document.getElementById('lbChips').innerHTML=
+    `<div class="chip ${lbFilter==='ALL'?'on':''}" onclick="lbFilter='ALL';renderLB()">🌏 ทุกห้อง</div>`+
+    classes.map(c=>`<div class="chip ${lbFilter===c?'on':''}" onclick="lbFilter='${esc(c)}';renderLB()">${esc(c)}</div>`).join('');
+  const list=lbData(lbFilter);
+  const me=G.student?G.student.name+'|'+G.student.cls+'|'+G.student.no:'';
+  const isMe=x=>(x.name+'|'+x.cls+'|'+x.no)===me;
+  const top=list.slice(0,3);
+  document.getElementById('lbPodium').innerHTML= top.length?`<div class="podium">
+    ${top[1]?`<div class="pod p2"><div class="md">🥈</div><div class="nm">${esc(top[1].name)}</div><div class="sc">${top[1].best}</div></div>`:''}
+    ${top[0]?`<div class="pod p1"><div class="md">🥇</div><div class="nm">${esc(top[0].name)}</div><div class="sc">${top[0].best}</div></div>`:''}
+    ${top[2]?`<div class="pod p3"><div class="md">🥉</div><div class="nm">${esc(top[2].name)}</div><div class="sc">${top[2].best}</div></div>`:''}</div>`:'';
+  document.getElementById('lbList').innerHTML= list.length? list.map((x,i)=>{
+    const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return `<div class="lbrow ${isMe(x)?'me':''}"><div class="rk">${md}</div>
+      <div class="in"><div class="nm">${esc(x.name)} ${isMe(x)?'<span style="color:#ffd93d">(คุณ)</span>':''}</div>
+      <div class="mt">${esc(x.cls)} เลขที่ ${esc(x.no)} · ด่านสูงสุด ${x.lvl} · แม่นยำ ${x.acc}% · เล่น ${x.plays} ครั้ง</div></div>
+      <div class="sc">${x.best}</div></div>`}).join('')
+   : '<p class="note center" style="padding:20px">ยังไม่มีข้อมูล — เล่นจบเกมแล้วคะแนนจะขึ้นกระดานผู้นำอัตโนมัติ</p>';
+}
+
+/* =====================================================================
+   14) 📺 จอแข่งสด (โปรเจกเตอร์)
+===================================================================== */
+function openLiveBoard(){
+  SFX.click();
+  const cur=document.querySelector('.screen.on');prevScreen=cur?cur.id:'scMenu';
+  if(G.playing&&G.state==='play'){G.state='paused';stopMusic()}
+  document.getElementById('inRoom2').value=NET.room||localStorage.getItem('cqRoom')||'';
+  show('scLive');
+  if(document.getElementById('inRoom2').value)startLiveBoard();
+}
+function backFromLive(){
+  stopLiveBoard();
+  if(prevScreen==='scGame'&&G.playing)backToGame();
+  else if(prevScreen==='scTeacher')show('scTeacher');
+  else if(G.student){renderMenu();show('scMenu');startMusic('menu')}
+  else show('scLogin');
+}
+function toggleProj(){document.body.classList.toggle('proj');toast(document.body.classList.contains('proj')?'🔎 โหมดโปรเจกเตอร์ (ตัวใหญ่)':'ปิดโหมดโปรเจกเตอร์')}
+function startLiveBoard(){
+  const room=document.getElementById('inRoom2').value.trim().toUpperCase();
+  if(!room){alert('กรุณากรอกรหัสห้อง');return}
+  localStorage.setItem('cqRoom',room);
+  stopLiveBoard();
+  refreshLive(room);
+  NET.pollTimer=setInterval(()=>refreshLive(room),2000);
+  document.getElementById('liveNote').textContent='กำลังอัปเดตอัตโนมัติทุก 2 วินาที · ห้อง '+room;
+}
+function stopLiveBoard(){if(NET.pollTimer){clearInterval(NET.pollTimer);NET.pollTimer=null}}
+if(NET.bc)NET.bc.onmessage=e=>{
+  const room=document.getElementById('inRoom2').value.trim().toUpperCase();
+  if(e.data&&e.data.room===room&&document.getElementById('scLive').classList.contains('on'))refreshLive(room);
+};
+async function refreshLive(room){
+  const data=await netList(room);
+  const arr=Object.entries(data||{}).map(([k,v])=>({k,...v})).filter(x=>x&&x.name)
+    .sort((a,b)=>(b.score||0)-(a.score||0));
+  document.getElementById('liveState').innerHTML=
+    `<span class="livedot ${netBase()&&!NET.online?'off':''}"></span><span style="font-size:14px;color:#9fb3d4">${netBase()?(NET.online?'ออนไลน์':'เชื่อมต่อไม่ได้'):'โหมดในเครื่อง'}</span>`;
+  const now=Date.now();
+  const active=arr.filter(x=>now-(x.t||0)<60000).length;
+  const avg=arr.length?Math.round(arr.reduce((s,x)=>s+(x.score||0),0)/arr.length):0;
+  const acc=(()=>{const t=arr.reduce((s,x)=>s+(x.total||0),0),c=arr.reduce((s,x)=>s+(x.correct||0),0);return t?Math.round(c/t*100):0})();
+  document.getElementById('liveStat').innerHTML=`
+    <div class="st"><b>${arr.length}</b><span>ผู้เข้าร่วม</span></div>
+    <div class="st"><b>${active}</b><span>กำลังเล่นอยู่</span></div>
+    <div class="st"><b>${avg}</b><span>คะแนนเฉลี่ย</span></div>
+    <div class="st"><b>${acc}%</b><span>ความแม่นยำเฉลี่ย</span></div>
+    <div class="st"><b>${arr.length?arr[0].score:0}</b><span>คะแนนสูงสุด</span></div>`;
+  const top=arr.slice(0,3);
+  document.getElementById('livePodium').innerHTML= top.length?`<div class="podium">
+    ${top[1]?`<div class="pod p2"><div class="md">🥈</div><div class="nm">${esc(top[1].name)}</div><div class="sc">${top[1].score}</div></div>`:''}
+    ${top[0]?`<div class="pod p1"><div class="md">🥇</div><div class="nm">${esc(top[0].name)}</div><div class="sc">${top[0].score}</div></div>`:''}
+    ${top[2]?`<div class="pod p3"><div class="md">🥉</div><div class="nm">${esc(top[2].name)}</div><div class="sc">${top[2].score}</div></div>`:''}</div>`:'';
+  document.getElementById('liveList').innerHTML= arr.length? arr.map((x,i)=>{
+    const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    const on=now-(x.t||0)<60000;
+    const stt=x.status==='boss'?'🐲 สู้บอส':x.status==='playing'?'🎮 กำลังเล่น':'⏸ พัก';
+    return `<div class="lbrow ${x.k===NET.uid?'me':''}"><div class="rk">${md}</div>
+      <div class="in"><div class="nm">${on?'<span class="livedot"></span>':''}${esc(x.name)}</div>
+      <div class="mt">${esc(x.cls||'')} เลขที่ ${esc(x.no||'')} · ด่าน ${x.level||1} · 🔮 ${x.orb||0}/${ORB_COUNT} · ❤️ ${x.lives||0} · ✅ ${x.correct||0}/${x.total||0} · ${stt}</div></div>
+      <div class="sc">${x.score||0}</div></div>`}).join('')
+   : '<p class="note center" style="padding:24px">ยังไม่มีนักเรียนเข้าห้องนี้ — ให้นักเรียนเลือกโหมด <b>แข่งสด</b> แล้วใส่รหัสห้องเดียวกัน</p>';
+}
+async function clearRoom(){
+  const room=document.getElementById('inRoom2').value.trim().toUpperCase();
+  if(!room)return;
+  if(!confirm('ล้างข้อมูลผู้เล่นทั้งหมดในห้อง '+room+' ?'))return;
+  await netClear(room);refreshLive(room);toast('🗑️ ล้างห้องเรียบร้อย');
+}
+
+/* =====================================================================
+   15) ระบบครู + Export + พิมพ์
+===================================================================== */
+function openTeacher(){SFX.click();document.getElementById('tLogin').style.display='block';
+  document.getElementById('tPanel').style.display='none';document.getElementById('tPass').value='';show('scTeacher')}
+const getPass=()=>localStorage.getItem('cqPass')||'teacher2024';
+function teacherLogin(){
+  if(document.getElementById('tPass').value===getPass()){
+    document.getElementById('tLogin').style.display='none';
+    document.getElementById('tPanel').style.display='block';renderTeacher();SFX.correct();
+  }else{SFX.wrong();alert('❌ รหัสผ่านไม่ถูกต้อง')}
+}
+function changePass(){
+  const o=prompt('ใส่รหัสผ่านเดิม:');if(o!==getPass()){alert('รหัสผ่านเดิมไม่ถูกต้อง');return}
+  const n=prompt('ใส่รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร):');
+  if(n&&n.length>=6){localStorage.setItem('cqPass',n);alert('✅ เปลี่ยนรหัสผ่านเรียบร้อย')}else alert('รหัสผ่านสั้นเกินไป');
+}
+function clearData(){if(confirm('ลบข้อมูลคะแนนทั้งหมด? (ไม่สามารถกู้คืนได้)')){localStorage.removeItem('cqDB');renderTeacher()}}
+function renderTeacher(){
+  const q=(document.getElementById('tSearch').value||'').toLowerCase();
+  const db=loadDB().filter(r=>(r.name+r.cls).toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts);
+  const avg=db.length?Math.round(db.reduce((s,r)=>s+r.pct,0)/db.length):0;
+  const names=new Set(db.map(r=>r.name+r.cls));
+  document.getElementById('tStat').innerHTML=`
+   <div class="st"><b>${db.length}</b><span>ครั้งที่เล่นทั้งหมด</span></div>
+   <div class="st"><b>${names.size}</b><span>จำนวนนักเรียน</span></div>
+   <div class="st"><b>${avg}%</b><span>ค่าเฉลี่ยความแม่นยำ</span></div>
+   <div class="st"><b>${db.length?Math.max(...db.map(r=>r.score)):0}</b><span>คะแนนสูงสุด</span></div>`;
+  const sp=(s,k)=>s&&s[k]&&s[k].t?Math.round(s[k].c/s[k].t*100)+'%':'-';
+  document.getElementById('tTable').innerHTML=
+   `<tr><th>วันที่</th><th>ชื่อ–สกุล</th><th>ชั้น</th><th>เลขที่</th><th>โหมด</th><th>ด่าน</th><th>คะแนน</th><th>ถูก/ข้อ</th><th>%</th>
+     <th>👂</th><th>🗣️</th><th>📖</th><th>✍️</th><th>ระดับ</th><th>ดู</th></tr>`+
+   (db.length?db.map(r=>`<tr>
+     <td>${r.date}</td><td style="text-align:left">${esc(r.name)}</td><td>${esc(r.cls)}</td><td>${esc(r.no)}</td>
+     <td>${r.mode==='live'?'🔥 แข่งสด':'🏠 ฝึก'}</td><td>${r.level}</td><td><b>${r.score}</b></td><td>${r.correct}/${r.total}</td>
+     <td><span class="badge ${r.pct>=80?'b-g':r.pct>=50?'b-y':'b-r'}">${r.pct}%</span></td>
+     <td>${sp(r.skill,'listening')}</td><td>${sp(r.skill,'speaking')}</td><td>${sp(r.skill,'reading')}</td><td>${sp(r.skill,'writing')}</td>
+     <td>${grade(r.pct)}</td><td><button class="btn ghost small" onclick="detail(${r.ts})">🔍</button></td></tr>`).join('')
+    :'<tr><td colspan="15">ยังไม่มีข้อมูล</td></tr>');
+}
+function detail(ts){
+  const r=loadDB().find(x=>x.ts===ts);if(!r)return;
+  document.getElementById('tDetail').innerHTML=`<h3>📋 รายละเอียดรายข้อ — ${esc(r.name)} (${esc(r.cls)} เลขที่ ${esc(r.no)})</h3>
+   <div class="scroll"><table><tr><th>#</th><th>ด่าน</th><th>ทักษะ</th><th>บอส</th><th>คำศัพท์</th><th>หลักการ</th><th>คำตอบนักเรียน</th><th>เฉลย</th><th>ผล</th><th>วิ.</th></tr>
+   ${r.detail.map((d,i)=>`<tr><td>${i+1}</td><td>${d.lv}</td><td>${TAGTXT[d.skill][0]}</td><td>${d.bonus?'🐲':''}</td>
+     <td>${d.word}</td><td>${d.rule}</td><td style="text-align:left">${esc(d.studentAns)}</td><td>${esc(d.correctAns)}</td>
+     <td>${d.correct?'✅':'❌'}</td><td>${d.time}</td></tr>`).join('')}</table></div>`;
+  document.getElementById('tDetail').scrollIntoView({behavior:'smooth'});
+}
+function rowsAll(db){
+  const H=['วันที่','ชื่อ-นามสกุล','ชั้น','เลขที่','โหมด','ห้องแข่ง','ด่านสูงสุด','คะแนนรวม','จำนวนข้อ','ตอบถูก','ร้อยละ','ระดับผลการเรียนรู้',
+   'ฟัง(%)','พูด(%)','อ่าน(%)','เขียน(%)','เติม-er(%)','ซ้ำตัวสะกด(%)','y→i(%)','ลงท้าย e(%)','ใช้more(%)','เวลาเล่น(นาที)'];
+  const p=(o,k)=>{const s=o&&o[k];return s&&s.t?Math.round(s.c/s.t*100):''};
+  return[H,...db.map(r=>[r.date,r.name,r.cls,r.no,r.mode==='live'?'แข่งสด':'ฝึกฝน',r.room||'',r.level,r.score,r.total,r.correct,r.pct,grade(r.pct),
+   p(r.skill,'listening'),p(r.skill,'speaking'),p(r.skill,'reading'),p(r.skill,'writing'),
+   p(r.gram,'er'),p(r.gram,'double'),p(r.gram,'y'),p(r.gram,'e'),p(r.gram,'more'),r.minutes])];
+}
+function dl(name,content,mime){
+  const b=new Blob([content],{type:mime}),u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(u);toast('📤 ดาวน์โหลดไฟล์แล้ว');
+}
+function exportCSV(){
+  const d=rowsAll(loadDB()).map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dl(`คะแนน_ComparativeQuest_${new Date().toISOString().slice(0,10)}.csv`,'\uFEFF'+d,'text/csv;charset=utf-8');
+}
+function exportTSV(){
+  const d=rowsAll(loadDB()).map(r=>r.join('\t')).join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(d).then(()=>alert('✅ คัดลอกแล้ว! เปิด Google Sheets แล้วกด Ctrl+V เพื่อวาง'))
+     .catch(()=>prompt('คัดลอกข้อความด้านล่าง:',d));
+  }else prompt('คัดลอกข้อความด้านล่าง:',d);
+}
+function exportJSON(){dl('ComparativeQuest_backup.json',JSON.stringify(loadDB(),null,2),'application/json')}
+function exportOne(){
+  const r=window.__rec;if(!r)return;
+  const H=['ข้อที่','ด่าน','ทักษะ','ด่านบอส','คำศัพท์','หลักการ','โจทย์','คำตอบนักเรียน','เฉลย','ผล','เวลา(วินาที)','คะแนน'];
+  const rs=r.detail.map((d,i)=>[i+1,d.lv,TAGTXT[d.skill][0],d.bonus?'ใช่':'ไม่',d.word,d.rule,d.question,d.studentAns,d.correctAns,d.correct?'ถูก':'ผิด',d.time,d.pts]);
+  const head=[['ชื่อ',r.name],['ชั้น',r.cls],['เลขที่',r.no],['วันที่',r.date],['คะแนนรวม',r.score],['ความแม่นยำ',r.pct+'%'],['ระดับ',grade(r.pct)],[]];
+  const csv=[...head,H,...rs].map(x=>x.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dl(`ผลคะแนน_${r.name}_${r.cls}.csv`,'\uFEFF'+csv,'text/csv;charset=utf-8');
+}
+function doPrint(html){document.getElementById('printArea').innerHTML=html;setTimeout(()=>window.print(),150)}
+function printStudent(){
+  const r=window.__rec;if(!r)return;
+  const sk={listening:'การฟัง',speaking:'การพูด',reading:'การอ่าน',writing:'การเขียน'};
+  const gl={er:'เติม -er',double:'ซ้ำตัวสะกด + -er',y:'y → i + -er',e:'ลงท้าย e เติม -r',more:'ใช้ more นำหน้า'};
+  doPrint(`<h2 style="text-align:center">รายงานผลการเรียนรู้ — Comparative Quest</h2>
+   <p style="text-align:center">เรื่อง การเปรียบเทียบขั้นกว่า (-er / more) · ภาษาอังกฤษ ชั้นประถมศึกษาปีที่ 5</p>
+   <p><b>ชื่อ:</b> ${esc(r.name)} &nbsp; <b>ชั้น:</b> ${esc(r.cls)} &nbsp; <b>เลขที่:</b> ${esc(r.no)} &nbsp; <b>วันที่:</b> ${r.date}</p>
+   <p><b>คะแนนรวม:</b> ${r.score} &nbsp; <b>ตอบถูก:</b> ${r.correct}/${r.total} (${r.pct}%) &nbsp; <b>ด่านสูงสุด:</b> ${r.level} &nbsp; <b>ระดับผลการเรียนรู้:</b> ${grade(r.pct)}</p>
+   <h3>ผลประเมินรายทักษะ</h3><table><tr><th>ทักษะ</th><th>ถูก/ข้อ</th><th>ร้อยละ</th></tr>
+   ${Object.keys(sk).map(k=>{const s=r.skill[k];return `<tr><td>${sk[k]}</td><td>${s.c}/${s.t}</td><td>${s.t?Math.round(s.c/s.t*100)+'%':'-'}</td></tr>`}).join('')}</table>
+   <h3>ผลประเมินรายหลักไวยากรณ์</h3><table><tr><th>หลักการ</th><th>ถูก/ข้อ</th><th>ร้อยละ</th></tr>
+   ${Object.keys(gl).map(k=>{const s=r.gram[k]||{c:0,t:0};return `<tr><td>${gl[k]}</td><td>${s.c}/${s.t}</td><td>${s.t?Math.round(s.c/s.t*100)+'%':'-'}</td></tr>`}).join('')}</table>
+   <h3>รายละเอียดรายข้อ</h3><table><tr><th>#</th><th>ด่าน</th><th>ทักษะ</th><th>คำศัพท์</th><th>คำตอบนักเรียน</th><th>เฉลย</th><th>ผล</th></tr>
+   ${r.detail.map((d,i)=>`<tr><td>${i+1}</td><td>${d.lv}</td><td>${TAGTXT[d.skill][0]}</td><td>${d.word}</td><td>${esc(d.studentAns)}</td><td>${esc(d.correctAns)}</td><td>${d.correct?'ถูก':'ผิด'}</td></tr>`).join('')}</table>
+   <p style="margin-top:26px">ลงชื่อ ....................................... ครูผู้สอน &nbsp;&nbsp;&nbsp; ลงชื่อ ....................................... ผู้ปกครอง</p>`);
+}
+function printClass(){
+  const db=loadDB(),R=rowsAll(db);
+  doPrint(`<h2 style="text-align:center">รายงานสรุปผลชั้นเรียน — Comparative Quest</h2>
+   <p style="text-align:center">พิมพ์เมื่อ ${new Date().toLocaleString('th-TH')} · จำนวน ${db.length} รายการ</p>
+   <table><tr>${R[0].map(h=>`<th>${h}</th>`).join('')}</tr>
+   ${R.slice(1).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>
+   <p style="margin-top:26px">ลงชื่อ ....................................... ครูผู้สอน</p>`);
+}
+function printLB(){
+  const list=lbData(lbFilter);
+  doPrint(`<h2 style="text-align:center">กระดานผู้นำ — Comparative Quest ${lbFilter==='ALL'?'(ทุกห้อง)':'('+esc(lbFilter)+')'}</h2>
+   <p style="text-align:center">พิมพ์เมื่อ ${new Date().toLocaleString('th-TH')}</p>
+   <table><tr><th>อันดับ</th><th>ชื่อ-นามสกุล</th><th>ชั้น</th><th>เลขที่</th><th>คะแนนสูงสุด</th><th>ด่านสูงสุด</th><th>ความแม่นยำ</th><th>จำนวนครั้ง</th></tr>
+   ${list.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.cls)}</td><td>${esc(x.no)}</td><td>${x.best}</td><td>${x.lvl}</td><td>${x.acc}%</td><td>${x.plays}</td></tr>`).join('')}</table>`);
+}
+
+/* =====================================================================
+   16) บันทึกอัตโนมัติ + ส่งคะแนนอัตโนมัติ
+===================================================================== */
+setInterval(()=>{if(G.playing&&G.student)saveGame(true)},10000);
+setInterval(()=>{if(NET.mode==='live'&&G.student)netPush()},3000);
+window.addEventListener('beforeunload',()=>{if(G.playing)saveGame(true)});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&G.playing){saveGame(true);netPush(true);if(G.state==='play'){G.state='paused';stopMusic()}}
+});
+window.addEventListener('load',()=>{
+  fitCanvas();updNetHint();
+  const de=document.documentElement;
+  if(!(de.requestFullscreen||de.webkitRequestFullscreen))
+    document.querySelectorAll('[onclick="toggleFS()"]').forEach(b=>b.classList.add('nofs'));
+});
+</script>
+</body>
+</html>
